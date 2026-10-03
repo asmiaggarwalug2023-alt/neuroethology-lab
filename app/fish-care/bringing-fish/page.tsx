@@ -107,17 +107,6 @@ export default function BringingFish(){
           </ul>
         </section>
       </div>
-
-      <section className="card transcript-card">
-        <span className="eyebrow">VOICE-NOTE SUMMARY</span>
-        <h2>Useful practical notes</h2>
-        <p>
-          The voice notes emphasised calling ahead, asking for appropriately packed and oxygenated
-          bags, avoiding overcrowding, keeping the box stable during travel, retaining the bill if
-          reimbursement is needed, avoiding the scanner on campus, and getting the fish settled
-          quickly once back in the lab.
-        </p>
-      </section>
     </>
   );
 }
