@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "../../../lib/supabaseServer";
+import { getSupabaseForRequest } from "../../../lib/supabaseServer";
 
 const allowed=new Set(["people","projects","setups","research","stock","commitments"]);
 
@@ -8,7 +8,7 @@ function unavailable(){
 }
 
 export async function GET(req:NextRequest){
-  const db=getSupabaseAdmin();
+  const db=getSupabaseForRequest(req.headers.get("authorization")?.replace(/^Bearer\s+/i,""));
   if(!db) return unavailable();
   const id=req.nextUrl.searchParams.get("id");
   if(id){
@@ -24,7 +24,7 @@ export async function GET(req:NextRequest){
 }
 
 export async function POST(req:NextRequest){
-  const db=getSupabaseAdmin();
+  const db=getSupabaseForRequest(req.headers.get("authorization")?.replace(/^Bearer\s+/i,""));
   if(!db) return unavailable();
   const body=await req.json();
   if(!allowed.has(body.kind)) return NextResponse.json({error:"Invalid record type."},{status:400});
@@ -35,7 +35,7 @@ export async function POST(req:NextRequest){
 }
 
 export async function PATCH(req:NextRequest){
-  const db=getSupabaseAdmin();
+  const db=getSupabaseForRequest(req.headers.get("authorization")?.replace(/^Bearer\s+/i,""));
   if(!db) return unavailable();
   const body=await req.json();
   if(!body.id || !body.data) return NextResponse.json({error:"Missing id or data."},{status:400});
@@ -45,7 +45,7 @@ export async function PATCH(req:NextRequest){
 }
 
 export async function DELETE(req:NextRequest){
-  const db=getSupabaseAdmin();
+  const db=getSupabaseForRequest(req.headers.get("authorization")?.replace(/^Bearer\s+/i,""));
   if(!db) return unavailable();
   const id=req.nextUrl.searchParams.get("id");
   if(!id) return NextResponse.json({error:"Missing id."},{status:400});
