@@ -1,4 +1,5 @@
 "use client";
+import { authFetch } from "../lib/authFetch";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type Field={key:string;label:string;required?:boolean;type?:"text"|"email"|"date"|"textarea"|"select";options?:string[]};
@@ -17,7 +18,7 @@ export function CrudBoard({kind,fields,addLabel,emptyText}:{kind:string;fields:F
   async function load(){
     setLoading(true);setError("");
     try{
-      const r=await fetch(`/api/records?kind=${encodeURIComponent(kind)}`,{cache:"no-store"});
+      const r=await authFetch(`/api/records?kind=${encodeURIComponent(kind)}`,{cache:"no-store"});
       const j=await r.json();
       if(!r.ok) throw new Error(j.error||"Could not load records.");
       setRecords(j.records||[]);
@@ -34,7 +35,7 @@ export function CrudBoard({kind,fields,addLabel,emptyText}:{kind:string;fields:F
     e.preventDefault();setMessage("");setError("");
     for(const f of fields){if(f.required && !String(form[f.key]||"").trim()){setError(`${f.label} is required.`);return;}}
     try{
-      const r=await fetch("/api/records",{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(editing?{id:editing,data:form}:{kind,data:form})});
+      const r=await authFetch("/api/records",{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(editing?{id:editing,data:form}:{kind,data:form})});
       const j=await r.json();
       if(!r.ok) throw new Error(j.error||"Could not save.");
       setMessage(editing?"Changes saved.":"Saved successfully.");
@@ -46,7 +47,7 @@ export function CrudBoard({kind,fields,addLabel,emptyText}:{kind:string;fields:F
     if(!confirm("Delete this item?")) return;
     setError("");setMessage("");
     try{
-      const r=await fetch(`/api/records?id=${encodeURIComponent(id)}`,{method:"DELETE"});
+      const r=await authFetch(`/api/records?id=${encodeURIComponent(id)}`,{method:"DELETE"});
       const j=await r.json();
       if(!r.ok) throw new Error(j.error||"Could not delete.");
       setMessage("Deleted successfully.");await load();
