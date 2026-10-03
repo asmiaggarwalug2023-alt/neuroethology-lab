@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   themeColor: "#3892C6",
   applicationName: "Neuroethology Lab",
+  icons: {
+    icon: "/app-icon.svg",
+    shortcut: "/app-icon.svg",
+    apple: "/app-icon.svg",
+  },
   appleWebApp: {
     capable: true,
     title: "Neuroethology Lab",
