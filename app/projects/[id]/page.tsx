@@ -1,4 +1,5 @@
 "use client";
+import { authFetch } from "../../../lib/authFetch";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -8,7 +9,7 @@ export default function ProjectDetail(){
   const [record,setRecord]=useState<any>(null);
   const [error,setError]=useState("");
   useEffect(()=>{
-    fetch("/api/records?id="+encodeURIComponent(params.id),{cache:"no-store"})
+    authFetch("/api/records?id="+encodeURIComponent(params.id),{cache:"no-store"})
       .then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error||"Could not load project.");setRecord(j.record);})
       .catch(e=>setError(e.message));
   },[params.id]);
