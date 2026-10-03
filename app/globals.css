@@ -458,3 +458,103 @@ textarea::placeholder{
 .calendar-item .small:last-child{
   margin-bottom:4px;
 }
+
+
+/* Responsibility rota */
+.rota-note{
+  margin:20px auto 14px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:var(--sea-dark);
+}
+.rota-note strong{font-size:22px}
+.rota-note span{color:var(--muted)}
+.rota-scroll{
+  width:100%;
+  overflow-x:auto;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:white;
+  box-shadow:var(--shadow);
+  margin:18px 0;
+}
+.rota-table{
+  width:100%;
+  min-width:980px;
+  border-collapse:separate;
+  border-spacing:0;
+  text-align:center;
+}
+.rota-table th{
+  background:var(--sea-dark);
+  color:white;
+  padding:14px 12px;
+  font-size:18px;
+  border-right:1px solid rgba(255,255,255,.16);
+}
+.rota-table th:first-child{border-top-left-radius:17px}
+.rota-table th:last-child{border-top-right-radius:17px;border-right:0}
+.rota-table th span{
+  display:block;
+  font-size:13px;
+  font-weight:400;
+  opacity:.88;
+  margin-top:2px;
+}
+.rota-table td{
+  padding:12px 10px;
+  border-top:1px solid var(--line);
+  border-right:1px solid var(--line);
+  vertical-align:middle;
+  min-height:62px;
+}
+.rota-table td:last-child{border-right:0}
+.rota-table tbody tr:nth-child(even) td{background:#f6fbfe}
+.rota-date{white-space:nowrap;font-weight:600}
+.slot-button,.slot-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:94px;
+  min-height:38px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#e8f3f9;
+  color:var(--sea-dark);
+  font-weight:700;
+  padding:7px 12px;
+}
+.slot-button:hover,.slot-link:hover{background:#d7e9f5}
+.slot-button:disabled{opacity:.55}
+.slot-taken strong{display:block;font-size:17px}
+.slot-actions{
+  margin-top:7px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.mini-action{
+  border:0;
+  background:transparent;
+  color:var(--sea-dark);
+  text-decoration:underline;
+  font-size:13px;
+  padding:2px 4px;
+}
+.danger-link{color:#8c3042}
+.rota-footnote{
+  max-width:760px;
+  margin:4px auto 0;
+  color:var(--muted);
+  font-size:14px;
+  text-align:center;
+}
+@media(max-width:700px){
+  .rota-scroll{border-radius:14px}
+  .rota-table{min-width:850px}
+}
