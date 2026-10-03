@@ -9,7 +9,7 @@
   --foam:#e8f3f9;
   --paper:#ffffff;
   --line:#b6d5eb;
-  --warm:var(--warm);
+  --warm:#7fbadc;
   --shadow:0 14px 40px rgba(43,115,185,.10);
 }
 *{box-sizing:border-box}
@@ -201,4 +201,206 @@ button{cursor:pointer}
 }
 @media(max-width:800px){
   .guide-grid{grid-template-columns:1fr}
+}
+
+
+/* Centered responsive pass */
+body,
+.main,
+.site-header,
+.brand-lockup,
+.main-nav,
+.hero,
+.hero-copy,
+.quick-card,
+.card,
+.card *,
+.page-title,
+.subtitle,
+.eyebrow,
+.text-link,
+.btn,
+button,
+input,
+textarea,
+select,
+label,
+.item,
+.event-row,
+.event-copy,
+.fish-buddy-card,
+.auth-card,
+.footer-note {
+  text-align:center;
+}
+
+.site-header{
+  justify-content:center;
+  gap:24px;
+  flex-wrap:wrap;
+  height:auto;
+  min-height:76px;
+  padding-top:12px;
+  padding-bottom:12px;
+}
+.brand-lockup{
+  justify-content:center;
+}
+.main-nav{
+  justify-content:center;
+  flex-wrap:wrap;
+  overflow:visible;
+  top:76px;
+}
+.hero{
+  grid-template-columns:1fr;
+  justify-items:center;
+  text-align:center;
+}
+.hero-copy{
+  margin-left:auto;
+  margin-right:auto;
+}
+.hero-wave{
+  display:none;
+}
+.quick-card{
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.section-heading,
+.event-row,
+.calendar-item,
+.settings-row,
+.centered-actions,
+.actions{
+  justify-content:center;
+  align-items:center;
+}
+.section-heading{
+  flex-direction:column;
+}
+.event-row,
+.calendar-item{
+  flex-direction:column;
+}
+.event-copy{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.grid,
+.quick-grid,
+.dashboard-grid,
+.guide-grid{
+  align-items:stretch;
+}
+.card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.card p,
+.card h1,
+.card h2,
+.card h3,
+.card h4,
+.card ul,
+.card ol{
+  width:100%;
+}
+.card ul,
+.card ol,
+.guide-card ul{
+  list-style-position:inside;
+  padding-left:0;
+}
+.input,
+textarea,
+select{
+  text-align:center;
+}
+input::placeholder,
+textarea::placeholder{
+  text-align:center;
+}
+.task-card{
+  padding:24px;
+}
+.task-time-grid{
+  width:100%;
+  display:grid;
+  grid-template-columns:1.25fr 1fr 1fr;
+  gap:10px;
+  margin:12px 0 16px;
+}
+.task-time-grid label{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  align-items:center;
+}
+.calendar-card{
+  padding:24px;
+}
+.calendar-item{
+  gap:14px;
+}
+.calendar-title{
+  font-size:22px;
+}
+.notification-card{
+  margin-top:18px;
+  padding:24px;
+}
+.notification-card h2{
+  font-size:30px;
+  margin:8px 0;
+}
+.notification-card p{
+  max-width:760px;
+}
+.notification-limit{
+  background:#e8f3f9;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px 14px;
+}
+.settings-row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.reminder-select{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.form-message{
+  color:#7a2940;
+}
+.auth-status{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+@media(max-width:900px){
+  .main-nav{top:auto;position:relative}
+  .site-header{position:relative}
+}
+@media(max-width:700px){
+  .task-time-grid{grid-template-columns:1fr}
+  .quick-grid,.grid,.dashboard-grid{grid-template-columns:1fr}
+  .main{width:min(94vw,1180px);padding-top:24px}
+  .site-header{padding-left:14px;padding-right:14px}
+  .main-nav{padding-left:12px;padding-right:12px}
+  .page-title{font-size:clamp(44px,14vw,60px)}
+  .btn{width:min(100%,320px)}
+  .actions,.centered-actions{width:100%}
 }
