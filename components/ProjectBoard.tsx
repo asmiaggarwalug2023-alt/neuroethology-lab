@@ -1,4 +1,5 @@
 "use client";
+import { authFetch } from "../lib/authFetch";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -14,7 +15,7 @@ export function ProjectBoard(){
   const [error,setError]=useState("");
 
   async function load(){
-    const r=await fetch("/api/records?kind=projects",{cache:"no-store"});
+    const r=await authFetch("/api/records?kind=projects",{cache:"no-store"});
     const j=await r.json();
     if(!r.ok){setError(j.error||"Could not load projects.");return;}
     setRows(j.records||[]);
@@ -25,7 +26,7 @@ export function ProjectBoard(){
     e.preventDefault();setError("");setMessage("");
     if(!form.title.trim()){setError("Project title is required.");return;}
     if(!form.summary.trim()){setError("Summary is required.");return;}
-    const r=await fetch("/api/records",{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(editing?{id:editing,data:form}:{kind:"projects",data:form})});
+    const r=await authFetch("/api/records",{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(editing?{id:editing,data:form}:{kind:"projects",data:form})});
     const j=await r.json();
     if(!r.ok){setError(j.error||"Could not save project.");return;}
     setMessage(editing?"Project updated.":"Project added.");setOpen(false);setEditing(null);setForm(blank);await load();
@@ -33,7 +34,7 @@ export function ProjectBoard(){
 
   async function remove(id:string){
     if(!confirm("Delete this project?")) return;
-    const r=await fetch("/api/records?id="+encodeURIComponent(id),{method:"DELETE"});
+    const r=await authFetch("/api/records?id="+encodeURIComponent(id),{method:"DELETE"});
     const j=await r.json();
     if(!r.ok){setError(j.error||"Could not delete project.");return;}
     setMessage("Project deleted.");await load();
