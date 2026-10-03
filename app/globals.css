@@ -404,3 +404,41 @@ textarea::placeholder{
   .btn{width:min(100%,320px)}
   .actions,.centered-actions{width:100%}
 }
+
+
+/* CRUD and modal controls */
+.crud-grid{margin-top:18px}
+.crud-card{padding:22px}
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(36,50,116,.28);
+  display:grid;place-items:center;padding:20px;z-index:200;
+}
+.modal-card{
+  width:min(620px,96vw);max-height:90vh;overflow:auto;
+  background:white;border:1px solid var(--line);border-radius:22px;
+  box-shadow:0 24px 80px rgba(36,50,116,.25);padding:26px;text-align:center;
+}
+.modal-card h2{font-size:32px;margin:0 0 14px}
+.form-field{display:flex;flex-direction:column;gap:6px;align-items:center;width:100%}
+.form-field>span{font-weight:600}
+.success-message,.error-message{
+  margin:12px auto;padding:11px 14px;border-radius:12px;max-width:720px;text-align:center
+}
+.success-message{background:#e7f4fb;border:1px solid #7fbadc;color:#2654a1}
+.error-message{background:#fff0f2;border:1px solid #e3aeb8;color:#7a2940}
+.danger{border-color:#e2a5af!important;color:#8c3042!important}
+.task-card{padding:22px}
+.commitment-list{width:100%;display:flex;flex-direction:column;gap:10px;margin:8px 0 16px}
+.commitment{border:1px solid var(--line);border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:5px;align-items:center}
+.task-entry{width:100%;display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:10px;align-items:end}
+.task-entry label{display:flex;flex-direction:column;gap:5px;align-items:center}
+.task-entry .wide-field{grid-column:1/-1}
+.task-entry button{grid-column:1/-1;justify-self:center}
+.notification-card{max-width:900px;margin-left:auto;margin-right:auto}
+.calendar-item>div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:700px){
+  .task-entry{grid-template-columns:1fr}
+  .task-entry .wide-field,.task-entry button{grid-column:1}
+  .modal-card{padding:20px}
+}
