@@ -1,1 +1,2 @@
-export default function Tasks(){return <><h1 className="page-title">Tasks</h1><p className="subtitle">Shared feeding, cleaning and lab jobs.</p><div className="grid" style={{marginTop:20}}>{["Feeding","Cleaning","Other lab tasks"].map(x=><div className="card" key={x}><h3>{x}</h3><p>No assignments yet.</p><button className="btn">Sign up</button></div>)}</div></>}
+import { TaskBoard } from "../../components/TaskBoard";
+export default function Tasks(){return <><h1 className="page-title">Tasks</h1><p className="subtitle">Shared feeding, cleaning and lab jobs.</p><TaskBoard/></>}
