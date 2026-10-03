@@ -807,3 +807,66 @@ textarea::placeholder{
   .buddy-expanded{width:min(360px,calc(100vw - 20px));max-height:72vh}
   .buddy-action-grid{grid-template-columns:1fr 1fr}
 }
+
+/* Visual system drawn from the original zebrafish artwork. */
+:root{
+  --ink:#09164f;
+  --muted:#455f7c;
+  --sea:#315c96;
+  --sea-dark:#152e67;
+  --mint:#c4daea;
+  --foam:#050f50;
+  --paper:#e6eff7;
+  --line:#9ab8d2;
+  --warm:#7ea9c7;
+  --shadow:0 16px 38px rgba(0,5,35,.18);
+}
+html{background:#050f50}
+body{background:#050f50;color:#dceaf5}
+.site-header{background:#050f50;border-bottom-color:#344b7b;backdrop-filter:none;min-height:88px;position:relative}
+.brand-lockup b{color:#c4dced;font-weight:500;font-size:26px}
+.brand-lockup small{color:#8cafd0}
+.brand-mark{background:transparent;color:#8cafd0;border:1px solid #6c94b8;border-radius:47% 53% 48% 52%;box-shadow:none}
+.main-nav{position:relative;top:auto;background:#0a1956;border-bottom:1px solid #344b7b;padding-top:16px;padding-bottom:16px;gap:5px 12px}
+.main-nav a{color:#c4dced;font-size:17px;border-radius:45% 55% 49% 51% / 44% 48% 52% 56%;border:1px solid transparent}
+.main-nav a:hover{background:#17326a;color:#edf6fc;border-color:#709bbf}
+.main{padding-top:30px}
+.page-title{color:#c4dced;font-weight:500}
+.eyebrow{color:#91b7d5}
+.subtitle,.hero-copy,.rota-note span,.rota-footnote{color:#b4cee3}
+.rota-note{color:#d5e6f3}
+.artwork-hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:38px;padding:0 0 40px;min-height:570px}
+.artwork-hero>div{padding:25px 0}
+.artwork-hero .page-title{font-size:clamp(52px,6.5vw,82px);max-width:540px;margin:22px auto;line-height:1.04}
+.artwork-hero .hero-copy{max-width:450px;font-size:23px}
+.homepage-artwork{display:block;width:100%;height:auto;max-height:640px;object-fit:contain}
+.card,.quick-card,.auth-card,.modal-card,.fish-buddy-card{color:var(--ink);background:#e6eff7;border-color:#8daece;border-radius:18px 23px 20px 25px;box-shadow:var(--shadow)}
+.quick-card{border-radius:48% 52% 45% 55% / 10% 12% 11% 14%;min-height:200px;padding:26px 20px;background:#d9e8f3}
+.quick-card:hover{border-color:#b7d4eb;background:#edf5fb;transform:translateY(-3px)}
+.quick-icon{color:#315c96;font-size:35px}
+.card .eyebrow{color:#315c96}
+.card h2,.quick-card h3{font-weight:500}
+.sea-card{background:#c4daea}
+.sea-card::after{content:"";display:block;width:70px;height:18px;border-top:2px solid #507ca7;border-bottom:1px solid #507ca7;border-radius:50%;margin-top:18px;transform:rotate(-4deg)}
+.mini-fish{display:none}
+.event-row{border-top-color:#adc6dc;width:100%}
+.date-chip,.pill,.step-number{border:1px solid #93b2cd;border-radius:44% 56% 48% 52% / 20% 23% 20% 25%;background:#c4daea}
+.btn,.header-login,.buddy-more,.buddy-customize,.slot-button,.slot-link{border-radius:12px 16px 11px 15px;transition:background .18s ease,box-shadow .18s ease}
+.btn{background:#17376f;color:#f2f7fb}
+.btn.secondary,.header-login,.buddy-customize{background:#eef5fb;color:#17376f}
+.btn:hover:not(:disabled){background:#294d85;color:#fff}
+.btn.secondary:hover{background:#c4daea;color:#152e67}
+.input,textarea,select{background:#f6faff;border-color:#9ab8d2;border-radius:10px 13px 11px 14px}
+.notice-card,.notification-limit,.procedure-warning{color:var(--ink);background:#d9e8f3}
+.notice-card .small{color:var(--muted)}
+.fish-buddy{background:#b7d3e8;color:#09164f;border:1px solid #719cbe;box-shadow:0 8px 24px rgba(0,0,20,.3)}
+.zebra-stage{background:linear-gradient(160deg,#dceaf5,#9bbdd9);border-radius:48% 52% 45% 55% / 12% 16% 14% 17%}
+.zebra-body{border-radius:57% 49% 52% 60%;background:linear-gradient(175deg,#b4d1e4,#7d9ec5 65%,#aec7ce);border-color:#152e67}
+.buddy-speech{background:#f2f7fb}
+.footer-note{color:#95b5d0;padding:34px 20px;border-top:1px solid #344b7b}
+.auth-status>.small{color:#c4dced}
+:focus-visible{outline:3px solid #719cbe;outline-offset:4px}
+@media(max-width:900px){.artwork-hero{gap:18px;min-height:0}.homepage-artwork{max-height:530px}.artwork-hero .page-title{font-size:58px}}
+@media(max-width:700px){.artwork-hero{grid-template-columns:1fr;gap:0;padding-bottom:28px}.homepage-artwork{grid-row:1;max-height:510px}.artwork-hero>div{padding:12px 8px 20px}.artwork-hero .page-title{font-size:52px;margin:18px auto}.artwork-hero .hero-copy{font-size:21px}.quick-card{min-height:170px}.main-nav a{font-size:16px}.brand-lockup b{font-size:24px}}
+@media(prefers-reduced-motion:reduce){.zebrafish{animation:none}.quick-card,.fish-care-link{transition:none}}
+.rota-table{color:var(--ink)}

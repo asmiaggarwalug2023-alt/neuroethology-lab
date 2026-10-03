@@ -15,13 +15,13 @@ const meetings=[
 export default function Home(){
   return (
     <>
-      <section className="hero">
+      <section className="hero artwork-hero">
         <div>
           <span className="eyebrow">WELCOME TO THE LAB</span>
           <h1 className="page-title">Make yourself at sea.</h1>
           <p className="hero-copy">Everything the lab needs to stay coordinated — without making fish care feel like project management.</p>
         </div>
-        <div className="hero-wave" aria-hidden="true">≈ ≈ ≈</div>
+        <img className="homepage-artwork" src="/lab-artwork.webp" alt="Hand-drawn blue zebrafish swimming together above the words Zebrafish Lab." width="960" height="1281" fetchPriority="high" />
       </section>
       <section className="quick-grid">
         {quick.map(q => (
