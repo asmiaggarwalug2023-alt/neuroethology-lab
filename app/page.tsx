@@ -25,7 +25,6 @@ export default function Home(){
           <div className="homepage-artwork-crop">
             <img className="homepage-artwork" src="/lab-artwork.webp" alt="Hand-drawn blue zebrafish swimming together." width="960" height="1281" fetchPriority="high" />
           </div>
-          <div className="artwork-brand-name">Neuroethology Lab</div>
         </div>
       </section>
       <section className="quick-grid">
