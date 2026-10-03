@@ -1,8 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
-export function getSupabaseAdmin(){
+export function getSupabaseForRequest(accessToken?:string|null){
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if(!url || !key) return null;
-  return createClient(url,key,{auth:{persistSession:false}});
+  return createClient(url,key,{
+    auth:{persistSession:false},
+    global: accessToken ? {headers:{Authorization:`Bearer ${accessToken}`}} : undefined
+  });
 }
