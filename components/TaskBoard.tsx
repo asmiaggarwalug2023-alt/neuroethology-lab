@@ -1,4 +1,5 @@
 "use client";
+import { authFetch } from "../lib/authFetch";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowser } from "../lib/supabaseBrowser";
@@ -28,7 +29,7 @@ export function TaskBoard(){
   async function load(){
     setError("");
     try{
-      const r=await fetch("/api/records?kind=commitments",{cache:"no-store"});
+      const r=await authFetch("/api/records?kind=commitments",{cache:"no-store"});
       const j=await r.json();
       if(!r.ok) throw new Error(j.error||"Could not load commitments.");
       setRows(j.records||[]);
@@ -62,7 +63,7 @@ export function TaskBoard(){
     const d=draft[task]||{date:"",start:"09:00",end:"10:00",notes:""};
     if(!d.date){setError("Choose a date before signing up.");return;}
     setError("");setMessage("");
-    const r=await fetch("/api/records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:"commitments",data:{task,name:user.name,email:user.email,...d}})});
+    const r=await authFetch("/api/records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:"commitments",data:{task,name:user.name,email:user.email,...d}})});
     const j=await r.json();
     if(!r.ok){setError(j.error||"Could not save commitment.");return;}
     setMessage("Commitment saved.");setDraft({...draft,[task]:{date:"",start:"09:00",end:"10:00",notes:""}});await load();
@@ -70,7 +71,7 @@ export function TaskBoard(){
 
   async function remove(id:string){
     if(!confirm("Delete this commitment?")) return;
-    const r=await fetch("/api/records?id="+encodeURIComponent(id),{method:"DELETE"});
+    const r=await authFetch("/api/records?id="+encodeURIComponent(id),{method:"DELETE"});
     const j=await r.json();
     if(!r.ok){setError(j.error||"Could not delete commitment.");return;}
     setMessage("Commitment deleted.");await load();
