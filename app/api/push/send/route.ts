@@ -22,10 +22,9 @@ export async function POST(req:NextRequest){
     headers:{
       apikey:SUPABASE_ANON_KEY,
       Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type":"application/json",
-      "x-cron-secret":CRON_SECRET
+      "Content-Type":"application/json"
     },
-    body:"{}",
+    body:JSON.stringify({p_secret:CRON_SECRET}),
     cache:"no-store"
   });
 
@@ -57,10 +56,10 @@ export async function POST(req:NextRequest){
         headers:{
           apikey:SUPABASE_ANON_KEY,
           Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
-          "Content-Type":"application/json",
-          "x-cron-secret":CRON_SECRET
+          "Content-Type":"application/json"
         },
         body:JSON.stringify({
+          p_secret:CRON_SECRET,
           p_subscription_id:job.subscription_id,
           p_commitment_id:job.commitment_id
         })
