@@ -1,4 +1,4 @@
--- Run this in Supabase SQL editor once the Supabase project is connected.
+-- Run this once in the Supabase SQL editor for the Neuroethology Lab project.
 create extension if not exists pgcrypto;
 
 create table if not exists public.app_records (
@@ -10,3 +10,30 @@ create table if not exists public.app_records (
 );
 
 create index if not exists app_records_kind_idx on public.app_records(kind);
+
+alter table public.app_records enable row level security;
+
+drop policy if exists "authenticated can read app records" on public.app_records;
+create policy "authenticated can read app records"
+on public.app_records for select
+to authenticated
+using (true);
+
+drop policy if exists "authenticated can insert app records" on public.app_records;
+create policy "authenticated can insert app records"
+on public.app_records for insert
+to authenticated
+with check (true);
+
+drop policy if exists "authenticated can update app records" on public.app_records;
+create policy "authenticated can update app records"
+on public.app_records for update
+to authenticated
+using (true)
+with check (true);
+
+drop policy if exists "authenticated can delete app records" on public.app_records;
+create policy "authenticated can delete app records"
+on public.app_records for delete
+to authenticated
+using (true);
