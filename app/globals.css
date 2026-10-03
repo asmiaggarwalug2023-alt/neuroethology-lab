@@ -86,3 +86,22 @@ button{cursor:pointer}
 .footer-note{text-align:center;color:#8aa09c;font-size:13px;padding:25px}
 @media(max-width:900px){.quick-grid{grid-template-columns:1fr 1fr}.dashboard-grid{grid-template-columns:1fr}.hero-wave{display:none}.main-nav{top:68px}.site-header{height:68px}.main{padding-top:25px}}
 @media(max-width:600px){.quick-grid{grid-template-columns:1fr}.page-title{font-size:52px}.site-header{padding:0 18px}.brand-lockup small{display:none}.main-nav{padding-left:18px}.fish-buddy-wrap{right:14px;bottom:14px}.fish-buddy>span:last-child{display:none}.fish-buddy{padding:8px}.main{width:min(92vw,1180px)}}
+
+
+.fish-care-card{
+  min-height:190px;
+  padding:28px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.fish-care-card h3{
+  margin:0 0 14px;
+  font-size:28px;
+}
+.fish-care-card p{
+  margin:0;
+  font-size:18px;
+}
