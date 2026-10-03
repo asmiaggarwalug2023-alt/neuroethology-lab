@@ -558,3 +558,67 @@ textarea::placeholder{
   .rota-scroll{border-radius:14px}
   .rota-table{min-width:850px}
 }
+
+
+/* Calendar event layout hard fix */
+.calendar-events{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:22px;
+  margin-top:24px;
+}
+.calendar-event-card{
+  padding:30px 24px 32px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.calendar-copy{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.calendar-copy h2{
+  margin:0;
+  font-size:34px;
+  line-height:1.1;
+}
+.calendar-when{
+  margin:0 !important;
+  font-size:21px;
+}
+.calendar-details{
+  margin:0 !important;
+  font-size:17px;
+  max-width:720px;
+}
+.calendar-action-row{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  margin-top:24px;
+  padding-top:6px;
+}
+.calendar-google-btn{
+  display:inline-flex;
+  width:auto !important;
+  max-width:100%;
+  min-height:48px;
+  padding:12px 24px;
+  position:relative;
+  z-index:1;
+}
+.notification-note{
+  margin-top:14px !important;
+  max-width:700px;
+}
+@media(max-width:700px){
+  .calendar-event-card{padding:24px 16px 26px}
+  .calendar-copy h2{font-size:30px}
+  .calendar-when{font-size:19px}
+  .calendar-google-btn{width:min(100%,320px) !important}
+}
