@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function PredatorGuide(){return <><Link href="/fish-care" className="text-link">← Back to Fish Care</Link><section className="guide-hero"><span className="eyebrow">FISH CARE</span><h1 className="page-title">Predator guide</h1><p className="hero-copy">This guide is ready for your lab’s approved predator-stimulus procedure and handling notes.</p></section></>}
