@@ -13,7 +13,7 @@ export function Shell({children}:{children:React.ReactNode}) {
     <div className="app-shell">
       <header className="site-header">
         <Link href="/" className="brand-lockup">
-          <span className="brand-mark">〰</span>
+          <span className="brand-mark"><img src="/app-icon.svg" alt="Zebrafish logo" /></span>
           <span><b>Neuroethology Lab</b><small>make yourself at sea</small></span>
         </Link>
         <div className="header-actions"><InstallApp /><AuthStatus /></div>
