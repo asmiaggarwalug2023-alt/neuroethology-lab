@@ -1,0 +1,17 @@
+{
+  "name": "Neuroethology Lab",
+  "short_name": "Neuroethology Lab",
+  "description": "Shared lab home for the Neuroethology Lab",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#D7E9F5",
+  "theme_color": "#3892C6",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
