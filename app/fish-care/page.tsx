@@ -1,1 +1,16 @@
-export default function FishCare(){return <><h1 className="page-title">Fish Care</h1><p className="subtitle">Approved husbandry information and lab-specific guidance.</p><div className="grid" style={{marginTop:20}}>{["Feeding","Cleaning","Bringing fish to the lab","Predator guide"].map(x=><div className="card" key={x}><h3>{x}</h3><p className="small">Add your lab-approved procedure here.</p></div>)}</div></>}
+export default function FishCare(){
+  return (
+    <>
+      <h1 className="page-title">Fish Care</h1>
+      <p className="subtitle">Approved husbandry information and lab-specific guidance.</p>
+      <div className="grid fish-care-grid" style={{marginTop:20}}>
+        {["Feeding","Cleaning","Bringing fish to the lab","Predator guide"].map(x=>
+          <div className="card fish-care-card" key={x}>
+            <h3>{x}</h3>
+            <p className="small">Add your lab-approved procedure here.</p>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
