@@ -1,1 +1,10 @@
-export default function Setups(){return <><h1 className="page-title">Lab Setups</h1><p className="subtitle">How each experimental setup is assembled, used and maintained.</p><div className="card" style={{marginTop:20}}><h3>Your lab’s setups belong here</h3><p>Add setup name, purpose, equipment, storage location, assembly/use steps, common mistakes, troubleshooting and related protocols.</p><button className="btn">Add lab setup</button></div></>}
+import { CrudBoard } from "../../components/CrudBoard";
+const fields=[
+  {key:"name",label:"Setup name",required:true},
+  {key:"purpose",label:"Purpose",required:true,type:"textarea"},
+  {key:"equipment",label:"Equipment"},
+  {key:"location",label:"Storage location"},
+  {key:"steps",label:"Assembly / use steps",type:"textarea"},
+  {key:"troubleshooting",label:"Troubleshooting",type:"textarea"}
+] as const;
+export default function Setups(){return <><h1 className="page-title">Lab Setups</h1><p className="subtitle">How each experimental setup is assembled, used and maintained.</p><CrudBoard kind="setups" fields={fields as any} addLabel="Add lab setup" emptyText="No lab setups have been added yet."/></>}
