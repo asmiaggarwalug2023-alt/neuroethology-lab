@@ -442,3 +442,19 @@ textarea::placeholder{
   .task-entry .wide-field,.task-entry button{grid-column:1}
   .modal-card{padding:20px}
 }
+
+
+/* Calendar spacing fix */
+.calendar-item{
+  padding:28px 18px 30px;
+  gap:22px;
+}
+.calendar-item > div{
+  gap:8px;
+}
+.calendar-item .btn{
+  margin-top:8px;
+}
+.calendar-item .small:last-child{
+  margin-bottom:4px;
+}
