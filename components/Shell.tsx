@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthStatus } from "./AuthStatus";
 
 const links = [
   ["/","Home"],["/tasks","Tasks"],["/calendar","Calendar"],["/fish-care","Fish Care"],
@@ -14,7 +15,7 @@ export function Shell({children}:{children:React.ReactNode}) {
           <span className="brand-mark">〰</span>
           <span><b>Neuroethology Lab</b><small>make yourself at sea</small></span>
         </Link>
-        <Link href="/login" className="header-login">Log in</Link>
+        <AuthStatus />
       </header>
       <nav className="main-nav" aria-label="Main navigation">
         {links.map(([href,label]) => <Link key={href} href={href}>{label}</Link>)}
