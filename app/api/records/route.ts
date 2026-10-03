@@ -10,6 +10,12 @@ function unavailable(){
 export async function GET(req:NextRequest){
   const db=getSupabaseAdmin();
   if(!db) return unavailable();
+  const id=req.nextUrl.searchParams.get("id");
+  if(id){
+    const {data,error}=await db.from("app_records").select("*").eq("id",id).single();
+    if(error) return NextResponse.json({error:error.message},{status:500});
+    return NextResponse.json({record:data});
+  }
   const kind=req.nextUrl.searchParams.get("kind")||"";
   if(!allowed.has(kind)) return NextResponse.json({error:"Invalid record type."},{status:400});
   const {data,error}=await db.from("app_records").select("*").eq("kind",kind).order("created_at",{ascending:false});
