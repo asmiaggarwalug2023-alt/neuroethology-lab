@@ -37,12 +37,15 @@ export function NotificationSettings(){
   return <section className="card notification-card">
     <span className="eyebrow">REMINDERS</span>
     <h2>Notifications</h2>
-    <p>Google Calendar reminders work even after this site is closed. This deployment can also show browser notifications while the app is open.</p>
-    <p className="notification-limit">Closed-app web push is <strong>not enabled</strong> on the current Render setup because the app does not yet have a push-delivery service and background scheduler.</p>
-    {supported===false ? <p>Your browser does not support web notifications.</p> : <>
+    <p>
+      For reminders that work after the web app is closed, add the commitment to Google Calendar.
+      You can also enable browser reminders while this web app is open.
+    </p>
+
+    {supported===false ? <p>Your browser does not support browser notifications.</p> : <>
       <div className="settings-row">
         <button className="btn" onClick={enable} disabled={permission==="granted" && enabled}>
-          {permission==="granted" && enabled ? "Notifications enabled" : "Enable notifications"}
+          {permission==="granted" && enabled ? "Browser notifications enabled" : "Enable browser notifications"}
         </button>
         <label className="reminder-select">
           <span>Remind me</span>
@@ -52,6 +55,9 @@ export function NotificationSettings(){
         </label>
       </div>
       {permission==="denied" && <p className="form-message">Notifications are blocked in this browser. Change the site permission in your browser settings to enable them.</p>}
+      <p className="small notification-note">
+        Background push while the app is fully closed is not active yet, so Google Calendar is the reliable closed-app reminder option.
+      </p>
     </>}
   </section>
 }
