@@ -21,7 +21,12 @@ export default function Home(){
           <h1 className="page-title">Make yourself at sea.</h1>
           <p className="hero-copy">“Somewhere something incredible is waiting to be known.” — Carl Sagan</p>
         </div>
-        <img className="homepage-artwork" src="/lab-artwork.webp" alt="Hand-drawn blue zebrafish swimming together above the words Zebrafish Lab." width="960" height="1281" fetchPriority="high" />
+        <div className="homepage-artwork-lockup">
+          <div className="homepage-artwork-crop">
+            <img className="homepage-artwork" src="/lab-artwork.webp" alt="Hand-drawn blue zebrafish swimming together." width="960" height="1281" fetchPriority="high" />
+          </div>
+          <div className="artwork-brand-name">Neuroethology Lab</div>
+        </div>
       </section>
       <section className="quick-grid">
         {quick.map(q => (
