@@ -20,20 +20,29 @@ export default function Calendar() {
     <>
       <h1 className="page-title">Lab calendar</h1>
       <p className="subtitle">Meetings, thesis sessions, conferences and deadlines.</p>
-      <div className="card calendar-card" style={{ marginTop: 20 }}>
-        <div className="list">
-          {events.map((event) => (
-            <div className="item calendar-item" key={event.name}>
-              <div>
-                <strong className="calendar-title">{event.name}</strong>
-                <div className="small">{event.when}</div>
-                <div className="small">{event.details}</div>
-              </div>
-              <a className="btn secondary" href={event.googleUrl} target="_blank" rel="noreferrer">Add to Google Calendar</a>
+
+      <div className="calendar-events">
+        {events.map((event) => (
+          <section className="card calendar-event-card" key={event.name}>
+            <div className="calendar-copy">
+              <h2>{event.name}</h2>
+              <p className="calendar-when">{event.when}</p>
+              <p className="calendar-details">{event.details}</p>
             </div>
-          ))}
-        </div>
+            <div className="calendar-action-row">
+              <a
+                className="btn secondary calendar-google-btn"
+                href={event.googleUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Add to Google Calendar
+              </a>
+            </div>
+          </section>
+        ))}
       </div>
+
       <NotificationSettings />
     </>
   );
