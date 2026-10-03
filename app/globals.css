@@ -1094,3 +1094,14 @@ body{
   .header-actions{width:100%}
   .install-help{right:50%;transform:translateX(50%)}
 }
+
+
+/* Fish Buddy typography */
+.buddy-speech,
+.fish-buddy-card,
+.fish-buddy-card button,
+.fish-buddy-card input,
+.fish-buddy-card select,
+.fish-buddy-card label{
+  font-family:"EB Garamond",serif !important;
+}
