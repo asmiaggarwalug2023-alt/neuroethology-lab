@@ -1,1 +1,11 @@
-export default function Projects(){return <><h1 className="page-title">Projects</h1><p className="subtitle">Major project hubs for the lab.</p><div className="grid" style={{marginTop:20}}>{["Decision making in zebrafish","OCD-related behavioural work","Animal welfare measurement"].map(x=><div className="card" key={x}><span className="pill">Project hub</span><h3>{x}</h3><p>Overview · Team · Methods · Progress · Updates · Related resources</p><button className="btn secondary">Open project</button></div>)}</div></>}
+import { CrudBoard } from "../../components/CrudBoard";
+const fields=[
+  {key:"title",label:"Project title",required:true},
+  {key:"summary",label:"Summary",required:true,type:"textarea"},
+  {key:"team",label:"Team"},
+  {key:"methods",label:"Methods",type:"textarea"},
+  {key:"progress",label:"Progress / current stage"},
+  {key:"updates",label:"Latest update",type:"textarea"},
+  {key:"status",label:"Status",type:"select",options:["Planning","Active","Paused","Completed"]}
+] as const;
+export default function Projects(){return <><h1 className="page-title">Projects</h1><p className="subtitle">Major project hubs for the lab.</p><CrudBoard kind="projects" fields={fields as any} addLabel="Add project" emptyText="No projects have been added yet."/></>}
