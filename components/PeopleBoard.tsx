@@ -1,4 +1,5 @@
 "use client";
+import { authFetch } from "../lib/authFetch";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -20,8 +21,8 @@ export function PeopleBoard(){
     setError("");
     try{
       const [pr,pp]=await Promise.all([
-        fetch("/api/records?kind=people",{cache:"no-store"}),
-        fetch("/api/records?kind=projects",{cache:"no-store"})
+        authFetch("/api/records?kind=people",{cache:"no-store"}),
+        authFetch("/api/records?kind=projects",{cache:"no-store"})
       ]);
       const [jr,jp]=await Promise.all([pr.json(),pp.json()]);
       if(!pr.ok) throw new Error(jr.error||"Could not load people.");
@@ -44,7 +45,7 @@ export function PeopleBoard(){
     e.preventDefault();setError("");setMessage("");
     if(!form.name.trim()){setError("Name is required.");return;}
     if(!form.role.trim()){setError("Role is required.");return;}
-    const r=await fetch("/api/records",{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(editing?{id:editing,data:form}:{kind:"people",data:form})});
+    const r=await authFetch("/api/records",{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(editing?{id:editing,data:form}:{kind:"people",data:form})});
     const j=await r.json();
     if(!r.ok){setError(j.error||"Could not save person.");return;}
     setMessage(editing?"Person updated.":"Person added.");setOpen(false);setEditing(null);setForm(blank);await load();
@@ -52,7 +53,7 @@ export function PeopleBoard(){
 
   async function remove(id:string){
     if(!confirm("Delete this person?")) return;
-    const r=await fetch("/api/records?id="+encodeURIComponent(id),{method:"DELETE"});
+    const r=await authFetch("/api/records?id="+encodeURIComponent(id),{method:"DELETE"});
     const j=await r.json();
     if(!r.ok){setError(j.error||"Could not delete person.");return;}
     setMessage("Person deleted.");await load();
