@@ -1,35 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&display=swap');
 
 :root{
-  --ink:#232649;
-  --muted:#6f7f96;
-  --sea:#2b73b9;
+  --ink:#243274;
+  --muted:#6d7f95;
+  --sea:#3892c6;
   --sea-dark:#2654a1;
   --mint:#d7e9f5;
-  --foam:#f7fbfe;
+  --foam:#e8f3f9;
   --paper:#ffffff;
   --line:#b6d5eb;
-  --warm:#e8f3f9;
+  --warm:var(--warm);
   --shadow:0 14px 40px rgba(43,115,185,.10);
 }
 *{box-sizing:border-box}
 html{background:var(--foam)}
 body{margin:0;color:var(--ink);background:
-radial-gradient(circle at 10% 12%,rgba(127,186,220,.24),transparent 24rem),
-linear-gradient(180deg,#fbfdff 0%,#f2f8fc 100%);
+radial-gradient(circle at 12% 10%,rgba(127,186,220,.35),transparent 28rem),
+radial-gradient(circle at 88% 18%,rgba(84,165,213,.18),transparent 24rem),
+linear-gradient(180deg,#f8fcff 0%,#e8f3f9 100%);
 font-family:"EB Garamond",serif;min-height:100vh}
 a{text-decoration:none;color:inherit}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .app-shell{min-height:100vh}
-.site-header{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 4.5vw;border-bottom:1px solid rgba(182,213,235,.85);background:rgba(255,255,255,.88);backdrop-filter:blur(14px);position:sticky;top:0;z-index:30}
+.site-header{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 4.5vw;border-bottom:1px solid rgba(182,213,235,.85);background:rgba(255,255,255,.92);backdrop-filter:blur(14px);position:sticky;top:0;z-index:30}
 .brand-lockup{display:flex;gap:12px;align-items:center}
-.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--sea);color:white;font-size:22px}
+.brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#54a5d5,#2654a1);color:white;font-size:22px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
 .brand-lockup b{font-size:22px;display:block;line-height:1}
 .brand-lockup small{display:block;color:var(--muted);font-size:13px;margin-top:5px;letter-spacing:.03em}
 .header-login{border:1px solid var(--line);border-radius:999px;padding:8px 16px;background:white;font-weight:600}
-.main-nav{display:flex;gap:8px;padding:12px 4.5vw;border-bottom:1px solid var(--line);overflow:auto;background:rgba(247,251,254,.90);position:sticky;top:76px;z-index:29}
-.main-nav a{white-space:nowrap;padding:7px 12px;border-radius:999px;color:#53657f;font-size:15px}
+.main-nav{display:flex;gap:8px;padding:12px 4.5vw;border-bottom:1px solid var(--line);overflow:auto;background:rgba(232,243,249,.94);position:sticky;top:76px;z-index:29}
+.main-nav a{white-space:nowrap;padding:7px 12px;border-radius:999px;color:#5d6f87;font-size:15px}
 .main-nav a:hover{background:var(--mint);color:var(--sea-dark)}
 .main{width:min(1180px,91vw);margin:0 auto;padding:44px 0 90px}
 .hero{display:grid;grid-template-columns:1fr auto;align-items:end;gap:30px;padding:34px 0 32px}
@@ -39,7 +40,7 @@ button{cursor:pointer}
 .hero-wave{font-size:54px;color:#7fbadc;letter-spacing:.06em;padding-bottom:8px}
 .quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
 .quick-card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;gap:15px;min-height:168px;box-shadow:0 4px 18px rgba(43,115,185,.05);transition:.18s ease}
-.quick-card:hover{transform:translateY(-2px);border-color:#7fbadc;box-shadow:var(--shadow)}
+.quick-card:hover{transform:translateY(-2px);border-color:#54a5d5;box-shadow:var(--shadow)}
 .quick-icon{font-size:28px;color:var(--sea);line-height:1}
 .quick-card h3,.card h2{margin:0 0 7px;font-size:23px}
 .quick-card p,.card p{color:var(--muted);line-height:1.45;margin:0 0 12px}
@@ -56,7 +57,7 @@ button{cursor:pointer}
 .date-chip b,.date-chip span{display:block}
 .date-chip b{font-size:12px;letter-spacing:.08em}
 .date-chip span{font-size:17px;margin-top:1px}
-.sea-card{background:linear-gradient(145deg,#d7e9f5,#f6fbff);position:relative;overflow:hidden}
+.sea-card{background:linear-gradient(145deg,#d7e9f5,#edf7fc);position:relative;overflow:hidden}
 .sea-card h2{font-size:30px;margin-top:8px;max-width:330px}
 .mini-fish{font-size:66px;position:absolute;right:20px;bottom:6px;filter:saturate(.8);opacity:.72}
 .page-title + .subtitle{margin-top:-5px}
@@ -133,7 +134,7 @@ button{cursor:pointer}
   border:1px solid var(--line);
   border-left:5px solid var(--sea);
   border-radius:14px;
-  background:#eef7fc;
+  background:#e8f3f9;
 }
 .notice-card strong{
   font-size:21px;
