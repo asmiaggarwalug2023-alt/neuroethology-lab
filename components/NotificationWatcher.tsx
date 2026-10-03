@@ -1,10 +1,11 @@
 "use client";
 import { useEffect } from "react";
+import { authFetch } from "../lib/authFetch";
 
-type Signup = { name:string; date:string; start:string; end:string };
+type Commitment = {id:string;data:{task:string;date:string;start:string;end:string;name:string}};
 
-function taskTimeMs(a:Signup){
-  return new Date(`${a.date}T${a.start}:00+05:30`).getTime();
+function taskTimeMs(date:string,start:string){
+  return new Date(`${date}T${start}:00+05:30`).getTime();
 }
 
 function recurringUpcoming(now:Date){
@@ -21,7 +22,7 @@ function recurringUpcoming(now:Date){
   const weekdayMap:Record<string,number>={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
   const today=weekdayMap[map.weekday];
   for(const m of meetings){
-    let delta=(m.day-today+7)%7;
+    const delta=(m.day-today+7)%7;
     const candidate=new Date(base.getTime()+delta*86400000+m.hour*3600000+m.minute*60000);
     if(candidate.getTime()<now.getTime()) candidate.setTime(candidate.getTime()+7*86400000);
     result.push({id:m.id,title:m.title,time:candidate.getTime()});
@@ -31,19 +32,32 @@ function recurringUpcoming(now:Date){
 
 export function NotificationWatcher(){
   useEffect(()=>{
-    const run=()=>{
+    async function run(){
       if(!("Notification" in window) || Notification.permission!=="granted") return;
       if(localStorage.getItem("neuro-notifications-enabled")!=="true") return;
+
       const lead=Number(localStorage.getItem("neuro-reminder-minutes")||15);
       const now=Date.now();
       const upcoming=recurringUpcoming(new Date());
-      const raw=localStorage.getItem("neuroethology-task-signups");
-      if(raw){
-        try{
-          const tasks=JSON.parse(raw) as Record<string,Signup>;
-          Object.entries(tasks).forEach(([title,a])=>upcoming.push({id:`task-${title}-${a.date}-${a.start}`,title:`Lab task: ${title}`,time:taskTimeMs(a)}));
-        }catch{}
-      }
+
+      try{
+        const r=await authFetch("/api/records?kind=commitments",{cache:"no-store"});
+        if(r.ok){
+          const j=await r.json();
+          const rows=(j.records||[]) as Commitment[];
+          rows.forEach(row=>{
+            const time=taskTimeMs(row.data.date,row.data.start);
+            if(time>=now-60000){
+              upcoming.push({
+                id:`task-${row.id}`,
+                title:`Lab responsibility: ${row.data.task}`,
+                time
+              });
+            }
+          });
+        }
+      }catch{}
+
       upcoming.forEach(item=>{
         const diff=item.time-now;
         if(diff>0 && diff<=lead*60000){
@@ -53,7 +67,8 @@ export function NotificationWatcher(){
           sessionStorage.setItem(key,"1");
         }
       });
-    };
+    }
+
     run();
     const timer=window.setInterval(run,30000);
     return()=>window.clearInterval(timer);
