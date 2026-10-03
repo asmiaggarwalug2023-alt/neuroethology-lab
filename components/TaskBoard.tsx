@@ -42,10 +42,15 @@ export function TaskBoard(){
       const u=data.session?.user;
       if(u) setUser({name:String(u.user_metadata?.full_name||u.email||"Lab member"),email:u.email||""});
     });
-    const {data:sub}=supabase?.auth.onAuthStateChange((_e,s)=>{
-      const u=s?.user;setUser(u?{name:String(u.user_metadata?.full_name||u.email||"Lab member"),email:u.email||""}:null);
-    })||{data:{sub:null as any}};
-    return()=>sub?.subscription?.unsubscribe?.();
+    let subscription:any=null;
+    if(supabase){
+      const result=supabase.auth.onAuthStateChange((_e,s)=>{
+        const u=s?.user;
+        setUser(u?{name:String(u.user_metadata?.full_name||u.email||"Lab member"),email:u.email||""}:null);
+      });
+      subscription=result.data.subscription;
+    }
+    return()=>subscription?.unsubscribe?.();
   },[]);
 
   function patch(task:string,key:"date"|"start"|"end"|"notes",value:string){
