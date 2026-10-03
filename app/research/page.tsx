@@ -1,1 +1,11 @@
-export default function Research(){return <><h1 className="page-title">Research Catalogue</h1><p className="subtitle">A structured index of papers and theses—without uploading PDFs.</p><div className="card" style={{marginTop:20}}><h3>Catalogue a resource</h3><p>Store title, authors, year, journal, tags, DOI/citation, notes, and relevant project/member.</p><button className="btn">Add resource</button></div></>}
+import { CrudBoard } from "../../components/CrudBoard";
+const fields=[
+  {key:"title",label:"Title",required:true},
+  {key:"authors",label:"Authors",required:true},
+  {key:"year",label:"Year"},
+  {key:"journal",label:"Journal"},
+  {key:"doi",label:"DOI / citation"},
+  {key:"tags",label:"Tags"},
+  {key:"notes",label:"Notes",type:"textarea"}
+] as const;
+export default function Research(){return <><h1 className="page-title">Research Catalogue</h1><p className="subtitle">A structured index of papers and theses—without uploading PDFs.</p><CrudBoard kind="research" fields={fields as any} addLabel="Add resource" emptyText="No research resources have been added yet."/></>}
