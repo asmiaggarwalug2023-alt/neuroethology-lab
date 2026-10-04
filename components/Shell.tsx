@@ -6,7 +6,7 @@ import { AuthStatus } from "./AuthStatus";
 import { InstallApp } from "./InstallApp";
 
 const links = [
-  ["/","Home"],["/tasks","Tasks"],["/calendar","Calendar"],["/fish-care","Fish Care"],
+  ["/home","Home"],["/tasks","Tasks"],["/calendar","Calendar"],["/fish-care","Fish Care"],
   ["/setups","Lab Setups"],["/projects","Projects"],["/handbook","Lab Handbook"],
   ["/research","Research Catalogue"],["/stock","Lab Stock"],["/people","People & Alumni"]
 ];
@@ -21,7 +21,7 @@ export function Shell({children}:{children:React.ReactNode}) {
   return (
     <div className="app-shell">
       <header className="site-header">
-        <Link href="/" className="brand-lockup">
+        <Link href="/home" className="brand-lockup">
           <span className="brand-mark"><img src="/app-icon.svg" alt="Zebrafish logo" /></span>
           <span><b>Neuroethology Lab</b><small>make yourself at sea</small></span>
         </Link>
