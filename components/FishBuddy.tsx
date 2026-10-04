@@ -160,7 +160,7 @@ export function FishBuddy(){
   function fact(){setMessage(pick(facts))}
   function pun(){setMessage(pick(puns))}
 
-  if(pathname==="/") return null;
+  if(pathname==="/" || pathname.startsWith("/fish-land")) return null;
 
   return (
     <div className="fish-buddy-wrap">
