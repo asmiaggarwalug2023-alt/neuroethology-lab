@@ -138,3 +138,116 @@ revoke all on function public.mark_push_job_sent(text,uuid,uuid) from public;
 
 grant execute on function public.get_due_push_jobs(text) to anon, authenticated;
 grant execute on function public.mark_push_job_sent(text,uuid,uuid) to anon, authenticated;
+
+
+-- ------------------------------------------------------------
+-- Overdue fish-care alerts (India time)
+-- ------------------------------------------------------------
+
+create table if not exists public.push_welfare_log (
+  subscription_id uuid not null references public.push_subscriptions(id) on delete cascade,
+  alert_key text not null,
+  sent_at timestamptz not null default now(),
+  primary key (subscription_id, alert_key)
+);
+
+alter table public.push_welfare_log enable row level security;
+
+create or replace function public.get_due_welfare_alerts(p_secret text)
+returns table (
+  subscription_id uuid,
+  endpoint text,
+  p256dh text,
+  auth text,
+  alert_key text,
+  message text
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  india_now timestamp := timezone('Asia/Kolkata', now());
+  today_text text := to_char(india_now,'YYYY-MM-DD');
+begin
+  if encode(digest(coalesce(p_secret,''),'sha256'),'hex') <>
+     '7e7082a2c6dec1b80f4474d6c21b00f5086e0bee8d0df71ad73e5ae672652608' then
+    return;
+  end if;
+
+  return query
+  with due_alerts as (
+    select
+      today_text || ':lights-on' as alert_key,
+      'Hi, we are still in the dark: someone please switch on the lights'::text as message,
+      'Switching on lights'::text as task_name,
+      time '10:30' as due_time
+    union all
+    select
+      today_text || ':feeding',
+      'Hi, we have not been fed since yesterday. :( please feed us, we are hungry.',
+      'Feeding fishes',
+      time '12:00'
+    union all
+    select
+      today_text || ':lights-off',
+      'Hi, it''s sleep time, please switch off lights.',
+      'Switching off lights',
+      time '22:30'
+  )
+  select
+    s.id,
+    s.endpoint,
+    s.p256dh,
+    s.auth,
+    a.alert_key,
+    a.message
+  from public.push_subscriptions s
+  cross join due_alerts a
+  where india_now::time >= a.due_time
+    and india_now::time < a.due_time + interval '20 minutes'
+    and not exists (
+      select 1
+      from public.app_records r
+      where r.kind='commitments'
+        and r.data->>'date'=today_text
+        and r.data->>'task'=a.task_name
+        and nullif(r.data->>'completedAt','') is not null
+    )
+    and not exists (
+      select 1 from public.push_welfare_log l
+      where l.subscription_id=s.id
+        and l.alert_key=a.alert_key
+    );
+end;
+$$;
+
+create or replace function public.mark_welfare_alert_sent(
+  p_secret text,
+  p_subscription_id uuid,
+  p_alert_key text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if encode(digest(coalesce(p_secret,''),'sha256'),'hex') <>
+     '7e7082a2c6dec1b80f4474d6c21b00f5086e0bee8d0df71ad73e5ae672652608' then
+    raise exception 'unauthorized';
+  end if;
+
+  insert into public.push_welfare_log(subscription_id,alert_key)
+  values (p_subscription_id,p_alert_key)
+  on conflict do nothing;
+end;
+$$;
+
+revoke all on function public.get_due_welfare_alerts(text) from public;
+revoke all on function public.mark_welfare_alert_sent(text,uuid,text) from public;
+
+grant execute on function public.get_due_welfare_alerts(text) to anon, authenticated;
+grant execute on function public.mark_welfare_alert_sent(text,uuid,text) to anon, authenticated;
+
+notify pgrst, 'reload schema';
