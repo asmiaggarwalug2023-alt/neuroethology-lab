@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ZebrafishResearchFeed } from "../components/ZebrafishResearchFeed";
+import { HomeNewsBar } from "../components/HomeNewsBar";
 
 const quick = [
   {title:"Feeding", text:"See the feeding rota and sign up for a slot.", href:"/tasks", action:"Sign up for feeding", icon:"◌"},
@@ -16,6 +17,7 @@ const meetings=[
 export default function Home(){
   return (
     <>
+      <HomeNewsBar />
       <section className="hero artwork-hero">
         <div>
           <span className="eyebrow">WELCOME TO THE LAB</span>
