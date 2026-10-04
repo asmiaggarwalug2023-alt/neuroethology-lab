@@ -1,219 +1,727 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowser } from "../lib/supabaseBrowser";
+import styles from "../app/fish-land/fishland.module.css";
 
 type BuddyPrefs={name:string;hat:string;outfit:string;personality?:string};
-type PresenceFish={id:string;name:string;location:string;hat?:string;outfit?:string};
+type Economy={coins:number;ownedBikinis:string[];equippedBikini:string;dailyAwarded:Record<string,number>};
+type PresenceFish={
+  id:string;
+  name:string;
+  room:string;
+  x:number;
+  y:number;
+  hat?:string;
+  outfit?:string;
+  bikini?:string;
+  queueJoinedAt?:number|null;
+  inConsultation?:boolean;
+};
+type Prompt={q:string;answers:Record<string,number>;aliases?:Record<string,string>};
 
-const defaults:BuddyPrefs={name:"Fish Buddy",hat:"None",outfit:"None"};
+const buddyDefaults:BuddyPrefs={name:"Fish Buddy",hat:"None",outfit:"None"};
+const economyDefaults:Economy={coins:0,ownedBikinis:[],equippedBikini:"",dailyAwarded:{}};
 
 const hats:Record<string,string>={
-  "None":"","Lab cap":"🧢","Graduation cap":"🎓","Crown":"👑","Party hat":"🥳","Beanie":"🧶"
+  "None":"","Lab cap":"CAP","Graduation cap":"GRAD","Crown":"CROWN","Party hat":"PARTY","Beanie":"BEANIE"
 };
 const outfits:Record<string,string>={
-  "None":"","Lab coat":"🥼","Bow tie":"🎀","Scarf":"🧣","Glasses":"👓","Backpack":"🎒"
+  "None":"","Lab coat":"COAT","Bow tie":"BOW","Scarf":"SCARF","Glasses":"GLASSES","Backpack":"PACK"
 };
 
-const locations=[
-  {id:"beach",label:"Beach",emoji:"🏖️",desc:"Hang out by the water with other Fish Buddies."},
-  {id:"park",label:"Park",emoji:"🌲",desc:"Take your fish for a slow swim-walk through the park."},
-  {id:"clinic",label:"Fish Clinic",emoji:"🩺",desc:"A playful portal to lab drug and treatment-reference information."},
-  {id:"cafe",label:"Central Fish Café",emoji:"☕",desc:"Sit together, have flakes and pellets, and catch up."},
-  {id:"club",label:"Fishmosh Club",emoji:"🪩",desc:"Dance floor for Fish Buddies."},
-  {id:"school",label:"School / Library",emoji:"📚",desc:"Study zone linking back to lab knowledge and research."},
-  {id:"shop",label:"Bikini Fish Store",emoji:"🛍️",desc:"A future home for cosmetic Fish Buddy items."},
-  {id:"redroom",label:"Red Room",emoji:"🚪",desc:"A themed reading room for nicotine-related studies."},
-  {id:"risk",label:"Enter at your own risk",emoji:"⚠️",desc:"The daily deep-sea rarity challenge."}
+const rooms=[
+  {id:"cafe",label:"Central Fish Café",short:"Café"},
+  {id:"clinic",label:"Doctor's Office",short:"Clinic"},
+  {id:"club",label:"Fishmosh",short:"Fishmosh"},
+  {id:"beach",label:"Beach",short:"Beach"},
+  {id:"shop",label:"Bikini Fish Store",short:"Shop"},
+  {id:"park",label:"Kelp Park",short:"Park"},
+  {id:"school",label:"School / Library",short:"Library"},
+  {id:"redroom",label:"Red Room",short:"Red Room"},
+  {id:"risk",label:"Enter at Your Own Risk",short:"Risk"}
 ];
 
-type Prompt={
-  q:string;
-  answers:Record<string,number>;
-};
+const foodMenu=[
+  {id:"flakes",name:"Fine Flakes",note:"Dry flake food"},
+  {id:"pellets",name:"Micro Pellets",note:"Small dry pellets"},
+  {id:"brine",name:"Brine Shrimp",note:"Live-food classic"},
+  {id:"daphnia",name:"Daphnia",note:"Live-food option"}
+];
+
+const bikinis=[
+  {id:"coral",name:"Coral Wrap",price:6,desc:"Warm coral bands with a reef trim."},
+  {id:"lagoon",name:"Lagoon Set",price:10,desc:"Cool aqua panels inspired by shallow water."},
+  {id:"midnight",name:"Midnight Current",price:14,desc:"Deep-blue bands with silver edging."},
+  {id:"sunset",name:"Sunset Reef",price:18,desc:"A vivid gradient for dramatic entrances."}
+];
 
 const promptBank:Prompt[]=[
-  {q:"Name a fruit",answers:{apple:.92,banana:.88,orange:.82,mango:.74,grape:.69,strawberry:.63,watermelon:.58,pineapple:.51,pear:.42,peach:.39,kiwi:.31,papaya:.25,guava:.18,pomegranate:.15,lychee:.11,dragonfruit:.06,persimmon:.04}},
-  {q:"Name an animal people keep as a pet",answers:{dog:.95,cat:.94,fish:.72,bird:.64,rabbit:.53,hamster:.45,turtle:.34,guineapig:.28,snake:.18,lizard:.15,ferret:.09,axolotl:.04}},
-  {q:"Name a colour",answers:{blue:.94,red:.91,green:.86,black:.80,white:.78,pink:.72,purple:.67,yellow:.64,orange:.55,brown:.49,grey:.43,teal:.22,maroon:.15,indigo:.09,turquoise:.08}},
-  {q:"Name a country in Asia",answers:{india:.94,china:.91,japan:.86,southkorea:.71,indonesia:.58,thailand:.54,pakistan:.49,nepal:.43,singapore:.40,vietnam:.38,malaysia:.34,bangladesh:.30,srilanka:.27,philippines:.25,bhutan:.14,mongolia:.11,laos:.08,brunei:.04}},
-  {q:"Name something found in a laboratory",answers:{microscope:.92,testtube:.84,pipette:.81,gloves:.76,beaker:.73,centrifuge:.61,"petri dish":.58,computer:.48,freezer:.40,incubator:.36,forceps:.29,scalpel:.24,spectrophotometer:.12,microtome:.07}},
-  {q:"Name a body of water",answers:{ocean:.92,sea:.87,river:.84,lake:.78,pond:.61,stream:.52,creek:.39,lagoon:.26,bay:.24,gulf:.22,estuary:.16,fjord:.09}},
-  {q:"Name a fish",answers:{goldfish:.91,salmon:.80,tuna:.75,shark:.70,clownfish:.63,betta:.54,zebrafish:.49,guppy:.46,carp:.39,trout:.36,tilapia:.31,cichlid:.24,oscar:.14,discus:.09,killifish:.07}},
-  {q:"Name something you might see at the beach",answers:{sand:.94,water:.93,waves:.88,shells:.74,people:.69,umbrella:.61,towel:.56,seagull:.45,boat:.39,crab:.31,seaweed:.26,starfish:.19,jellyfish:.12}},
-  {q:"Name a drink",answers:{water:.95,tea:.88,coffee:.87,juice:.72,soda:.63,milk:.58,lemonade:.44,smoothie:.36,coconutwater:.22,milkshake:.19,kombucha:.08}},
-  {q:"Name something that can fly",answers:{bird:.94,plane:.91,helicopter:.75,butterfly:.69,bee:.63,fly:.59,mosquito:.52,bat:.47,kite:.42,drone:.34,balloon:.28,dragonfly:.23}}
+  {q:"Name a reason a student might be late to class",answers:{overslept:96,traffic:88,bus:82,alarm:78,breakfast:52,printer:37,roommate:29,rain:25,parking:21,coffee:18},aliases:{"slept in":"overslept","missed bus":"bus","alarm did not go off":"alarm","alarm didnt go off":"alarm"}},
+  {q:"Name something people do when they are awkwardly waiting",answers:{phone:96,scroll:90,lookaround:73,smile:61,fidget:58,text:55,pace:31,hum:18,stretch:12},aliases:{"check phone":"phone","use phone":"phone","look at phone":"phone","scroll instagram":"scroll","look around":"lookaround"}},
+  {q:"Name a food people often order when hanging out with friends",answers:{pizza:97,fries:88,burger:82,pasta:61,momos:58,sushi:43,nachos:40,chaat:36,noodles:35,tacos:28},aliases:{"french fries":"fries","dumplings":"momos"}},
+  {q:"Name something students forget before an exam",answers:{pen:91,id:80,calculator:72,notes:69,water:48,admitcard:45,charger:33,pencil:30,eraser:24,ruler:17},aliases:{"student id":"id","identity card":"id","admit card":"admitcard"}},
+  {q:"Name something people do after sending a risky text",answers:{wait:95,checkphone:91,regret:88,delete:57,panic:54,overthink:52,tellfriend:38,sleep:17},aliases:{"check phone":"checkphone","overthink it":"overthink","tell a friend":"tellfriend"}},
+  {q:"Name a drink people get while studying",answers:{coffee:98,tea:88,water:85,energy:69,juice:41,soda:36,milkshake:21,smoothie:19},aliases:{"energy drink":"energy","cold coffee":"coffee"}},
+  {q:"Name something that can ruin a group project",answers:{ghosting:95,procrastination:91,communication:86,conflict:70,deadlines:61,free-rider:56,formatting:33,printer:16},aliases:{"bad communication":"communication","free rider":"free-rider","one person doing nothing":"free-rider"}},
+  {q:"Name something people check before leaving home",answers:{phone:96,keys:95,wallet:90,weather:72,mirror:66,bag:61,charger:40,lights:31,door:29},aliases:{"lock":"door","door lock":"door"}},
+  {q:"Name something you might bring to a picnic",answers:{food:98,blanket:91,water:82,basket:66,snacks:63,sunscreen:45,speaker:42,cards:30,book:19},aliases:{"picnic blanket":"blanket","card game":"cards"}},
+  {q:"Name something friends argue about when choosing where to eat",answers:{cuisine:92,price:88,distance:77,vegetarian:54,spice:46,ambience:42,parking:25,ratings:22},aliases:{"type of food":"cuisine","cost":"price","how far":"distance"}},
+  {q:"Name something people do while pretending to listen",answers:{nod:97,smile:91,phone:73,eyecontact:67,hm:58,daydream:52,repeat:24},aliases:{"nod head":"nod","make eye contact":"eyecontact","say hmm":"hm"}},
+  {q:"Name something you might do during a boring lecture",answers:{notes:90,phone:89,doodle:78,daydream:74,whisper:43,coffee:31,sleep:29,game:20},aliases:{"take notes":"notes","use phone":"phone","play a game":"game"}},
+  {q:"Name something people buy at a campus café",answers:{coffee:97,tea:84,sandwich:74,fries:62,muffin:53,noodles:49,juice:45,cookie:40,salad:22},aliases:{"cold coffee":"coffee","cookies":"cookie"}},
+  {q:"Name something people lose in their room",answers:{keys:94,charger:91,earbuds:88,socks:80,phone:71,pen:56,card:42,glasses:38,remote:26},aliases:{"airpods":"earbuds","id card":"card"}},
+  {q:"Name a reason someone might cancel plans",answers:{tired:96,sick:93,work:84,study:77,family:63,rain:51,money:44,anxiety:38,transport:25},aliases:{"too tired":"tired","studying":"study","no money":"money"}},
+  {q:"Name something people do when they see an ex unexpectedly",answers:{avoid:92,smile:81,freeze:77,hide:64,hello:61,phone:53,leave:47,wave:32},aliases:{"say hi":"hello","pretend to use phone":"phone"}},
+  {q:"Name something you might find in a university backpack",answers:{laptop:97,notebook:92,charger:87,pen:84,water:75,headphones:69,book:60,snack:48,umbrella:31,labcoat:16},aliases:{"water bottle":"water","lab coat":"labcoat"}},
+  {q:"Name something people do right before a presentation",answers:{practice:95,breathe:84,slides:78,water:55,panic:51,mirror:39,notes:37,stretch:20},aliases:{"check slides":"slides","deep breaths":"breathe","read notes":"notes"}},
+  {q:"Name something roommates commonly disagree about",answers:{cleaning:97,noise:89,guests:73,temperature:67,food:61,bathroom:54,lights:45,rent:34},aliases:{"ac":"temperature","air conditioning":"temperature","chores":"cleaning"}},
+  {q:"Name something people post after a good day",answers:{photo:96,story:89,selfie:72,food:61,sunset:57,friends:55,music:38,meme:27},aliases:{"instagram story":"story","group photo":"friends"}},
+  {q:"Name something people do when Wi-Fi stops working",answers:{restart:95,data:88,router:82,complain:63,wait:52,hotspot:49,call:35,move:22},aliases:{"restart router":"restart","mobile data":"data","use hotspot":"hotspot"}},
+  {q:"Name something people order at midnight",answers:{pizza:95,maggie:86,burger:72,biryani:69,fries:63,momos:55,noodles:49,dessert:35,tea:18},aliases:{"maggi":"maggie","instant noodles":"maggie"}},
+  {q:"Name something students say when they have not started an assignment",answers:{later:95,tomorrow:91,time:78,easy:58,deadline:54,soon:49,tonight:46,panic:28},aliases:{"i will do it later":"later","tomorrow":"tomorrow","there is time":"time"}},
+  {q:"Name something people do after getting good news",answers:{smile:98,call:88,text:85,celebrate:82,hug:70,screenshot:49,post:42,dance:38,cry:27},aliases:{"tell someone":"call","happy cry":"cry"}},
+  {q:"Name something you might hear in a lab",answers:{timer:86,fan:82,conversation:78,beep:76,water:68,keyboard:57,pump:54,centrifuge:41,laughter:33},aliases:{"beeping":"beep","typing":"keyboard","water pump":"pump"}},
+  {q:"Name something people do while waiting for food",answers:{phone:95,talk:89,water:63,lookaround:60,menu:52,photos:41,complain:22},aliases:{"check phone":"phone","chat":"talk","look around":"lookaround","read menu":"menu"}},
+  {q:"Name a common excuse for not replying",answers:{busy:97,sleep:88,forgot:84,work:79,study:72,phone:51,notification:46,battery:31},aliases:{"i was busy":"busy","fell asleep":"sleep","forgot to reply":"forgot","no notification":"notification"}},
+  {q:"Name something people carry to the beach",answers:{towel:95,sunscreen:91,water:82,sunglasses:78,hat:68,book:50,snacks:47,ball:39,speaker:28},aliases:{"sun screen":"sunscreen","water bottle":"water","volleyball":"ball"}},
+  {q:"Name something people do after waking up",answers:{phone:96,bathroom:88,water:74,brush:72,coffee:63,shower:56,stretch:43,breakfast:39,snooze:34},aliases:{"check phone":"phone","brush teeth":"brush","hit snooze":"snooze"}}
 ];
 
-function normalized(s:string){
-  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"");
+function normalize(value:string){
+  return value.toLowerCase().trim().replace(/[^a-z0-9 ]+/g,"").replace(/\s+/g," ");
+}
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
 function seededIndex(seed:string,max:number){
   let h=2166136261;
   for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619);}
   return Math.abs(h)%max;
 }
-function todayKey(){
-  const d=new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-function rarityLabel(freq:number){
-  if(freq>=.75) return {label:"Very common",drop:8};
-  if(freq>=.5) return {label:"Common",drop:14};
-  if(freq>=.25) return {label:"Uncommon",drop:22};
-  if(freq>=.1) return {label:"Rare",drop:31};
-  return {label:"Deep-sea rare",drop:42};
+function commonnessResult(score:number){
+  if(score>=85) return {label:"Very common",drop:40};
+  if(score>=65) return {label:"Common",drop:30};
+  if(score>=45) return {label:"Fairly common",drop:22};
+  if(score>=25) return {label:"Uncommon",drop:14};
+  return {label:"Rare",drop:8};
 }
 
 export function FishLand(){
-  const [prefs,setPrefs]=useState<BuddyPrefs>(defaults);
-  const [location,setLocation]=useState("cafe");
-  const [panel,setPanel]=useState("cafe");
+  const [prefs,setPrefs]=useState<BuddyPrefs>(buddyDefaults);
+  const [economy,setEconomy]=useState<Economy>(economyDefaults);
+  const [room,setRoom]=useState("island");
+  const [pos,setPos]=useState({x:50,y:76});
   const [online,setOnline]=useState<PresenceFish[]>([]);
+  const [signedIn,setSignedIn]=useState(false);
+  const [connection,setConnection]=useState("Connecting…");
+  const [queueJoinedAt,setQueueJoinedAt]=useState<number|null>(null);
+  const [inConsultation,setInConsultation]=useState(false);
   const channelRef=useRef<any>(null);
+  const userIdRef=useRef("guest-"+Math.random().toString(36).slice(2,10));
+  const trackTimer=useRef<any>(null);
 
   useEffect(()=>{
-    const local=localStorage.getItem("neuro-fish-buddy");
-    if(local){try{setPrefs({...defaults,...JSON.parse(local)});}catch{}}
-    const supabase=getSupabaseBrowser();
-    if(!supabase) return;
-    let userId="guest-"+Math.random().toString(36).slice(2,8);
-    supabase.auth.getSession().then(({data})=>{
-      if(data.session?.user?.id) userId=data.session.user.id;
-      const remote=data.session?.user?.user_metadata?.fish_buddy;
-      if(remote) setPrefs({...defaults,...remote});
+    const localBuddy=localStorage.getItem("neuro-fish-buddy");
+    if(localBuddy){try{setPrefs({...buddyDefaults,...JSON.parse(localBuddy)});}catch{}}
+    const localLand=localStorage.getItem("neuro-fish-land");
+    if(localLand){try{setEconomy({...economyDefaults,...JSON.parse(localLand)});}catch{}}
 
-      const channel=supabase.channel("fish-land-presence",{config:{presence:{key:userId}}});
+    const supabase=getSupabaseBrowser();
+    if(!supabase){setConnection("Solo mode");return;}
+
+    supabase.auth.getSession().then(({data})=>{
+      const session=data.session;
+      if(session?.user){
+        setSignedIn(true);
+        userIdRef.current=session.user.id;
+        const remoteBuddy=session.user.user_metadata?.fish_buddy;
+        const remoteLand=session.user.user_metadata?.fish_land;
+        if(remoteBuddy) setPrefs({...buddyDefaults,...remoteBuddy});
+        if(remoteLand){
+          const next={...economyDefaults,...remoteLand,dailyAwarded:remoteLand.dailyAwarded||{}};
+          setEconomy(next);
+          localStorage.setItem("neuro-fish-land",JSON.stringify(next));
+        }
+      }
+
+      const channel=supabase.channel("fish-land-world-v2",{config:{presence:{key:userIdRef.current}}});
       channelRef.current=channel;
       channel
         .on("presence",{event:"sync"},()=>{
           const state=channel.presenceState();
-          const fish:PresenceFish[]=[];
-          Object.entries(state).forEach(([id,arr]:any)=>{
-            const p=arr?.[0];
-            if(p) fish.push({id,name:p.name||"Fish Buddy",location:p.location||"cafe",hat:p.hat,outfit:p.outfit});
+          const players:PresenceFish[]=[];
+          Object.entries(state).forEach(([id,entries]:any)=>{
+            const p=entries?.[0];
+            if(!p) return;
+            players.push({
+              id,
+              name:p.name||"Fish Buddy",
+              room:p.room||"island",
+              x:Number.isFinite(p.x)?p.x:50,
+              y:Number.isFinite(p.y)?p.y:76,
+              hat:p.hat||"None",
+              outfit:p.outfit||"None",
+              bikini:p.bikini||"",
+              queueJoinedAt:p.queueJoinedAt||null,
+              inConsultation:!!p.inConsultation
+            });
           });
-          setOnline(fish);
+          setOnline(players);
         })
         .subscribe(async(status)=>{
           if(status==="SUBSCRIBED"){
-            await channel.track({name:prefs.name||"Fish Buddy",location,hat:prefs.hat,outfit:prefs.outfit});
+            setConnection("Live");
+            await channel.track({
+              name:prefs.name||"Fish Buddy",room:"island",x:50,y:76,
+              hat:prefs.hat,outfit:prefs.outfit,bikini:economy.equippedBikini,
+              queueJoinedAt:null,inConsultation:false
+            });
+          }else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){
+            setConnection("Reconnecting…");
           }
         });
     });
-    return()=>{if(channelRef.current) supabase.removeChannel(channelRef.current);};
+
+    const {data:authSub}=supabase.auth.onAuthStateChange((_event,session)=>{
+      setSignedIn(!!session?.user);
+    });
+
+    return()=>{
+      if(trackTimer.current) clearTimeout(trackTimer.current);
+      if(channelRef.current) supabase.removeChannel(channelRef.current);
+      authSub.subscription.unsubscribe();
+    };
   },[]);
 
   useEffect(()=>{
-    const ch=channelRef.current;
-    if(ch) ch.track({name:prefs.name||"Fish Buddy",location,hat:prefs.hat,outfit:prefs.outfit}).catch(()=>{});
-  },[location,prefs]);
+    const channel=channelRef.current;
+    if(!channel) return;
+    if(trackTimer.current) clearTimeout(trackTimer.current);
+    trackTimer.current=setTimeout(()=>{
+      channel.track({
+        name:prefs.name||"Fish Buddy",
+        room,
+        x:pos.x,
+        y:pos.y,
+        hat:prefs.hat,
+        outfit:prefs.outfit,
+        bikini:economy.equippedBikini,
+        queueJoinedAt,
+        inConsultation
+      }).catch(()=>{});
+    },120);
+  },[prefs,room,pos,economy.equippedBikini,queueJoinedAt,inConsultation]);
 
-  function go(id:string){
-    setLocation(id);
-    setPanel(id);
+  async function persistEconomy(next:Economy){
+    setEconomy(next);
+    localStorage.setItem("neuro-fish-land",JSON.stringify(next));
+    const supabase=getSupabaseBrowser();
+    if(supabase&&signedIn){
+      await supabase.auth.updateUser({data:{fish_land:next}});
+    }
   }
 
-  const here=online.filter(f=>f.location===location);
+  function enterRoom(id:string){
+    setRoom(id);
+    setPos({x:50,y:78});
+    if(id!=="clinic"){
+      setQueueJoinedAt(null);
+      setInConsultation(false);
+    }
+  }
+
+  function moveInRoom(e:PointerEvent<HTMLDivElement>){
+    const target=e.target as HTMLElement;
+    if(target.closest("button,a,input,select,label")) return;
+    const rect=e.currentTarget.getBoundingClientRect();
+    const x=Math.max(8,Math.min(92,((e.clientX-rect.left)/rect.width)*100));
+    const y=Math.max(18,Math.min(86,((e.clientY-rect.top)/rect.height)*100));
+    setPos({x,y});
+  }
+
+  const roomPlayers=online.filter(p=>p.room===room&&p.id!==userIdRef.current);
+  const currentPlayer:PresenceFish={
+    id:userIdRef.current,name:prefs.name||"Fish Buddy",room,x:pos.x,y:pos.y,
+    hat:prefs.hat,outfit:prefs.outfit,bikini:economy.equippedBikini,
+    queueJoinedAt,inConsultation
+  };
+
+  if(room==="island"){
+    return <IslandWorld prefs={prefs} economy={economy} online={online} connection={connection} onEnter={enterRoom}/>;
+  }
 
   return (
-    <div className="fishland-shell">
-      <section className="fishland-header">
+    <div className={styles.world}>
+      <div className={styles.compactBar}>
+        <button className={styles.backButton} onClick={()=>enterRoom("island")}>Back to Fish Land</button>
+        <div className={styles.roomTitle}>{rooms.find(r=>r.id===room)?.label}</div>
+        <div className={styles.statusGroup}>
+          <span>{connection}</span>
+          <span>{economy.coins} coins</span>
+        </div>
+      </div>
+
+      {room==="risk" ? (
+        <RiskRoom prefs={prefs} economy={economy} persistEconomy={persistEconomy}/>
+      ) : (
+        <RoomScene
+          room={room}
+          me={currentPlayer}
+          others={roomPlayers}
+          onMove={moveInRoom}
+          queueJoinedAt={queueJoinedAt}
+          setQueueJoinedAt={setQueueJoinedAt}
+          inConsultation={inConsultation}
+          setInConsultation={setInConsultation}
+          prefs={prefs}
+          economy={economy}
+          persistEconomy={persistEconomy}
+          signedIn={signedIn}
+          online={online}
+        />
+      )}
+    </div>
+  );
+}
+
+function IslandWorld({prefs,economy,online,connection,onEnter}:{prefs:BuddyPrefs;economy:Economy;online:PresenceFish[];connection:string;onEnter:(id:string)=>void}){
+  return (
+    <div className={styles.world}>
+      <div className={styles.compactBar}>
         <div>
-          <span className="eyebrow">NEUROETHOLOGY LAB SOCIAL WORLD</span>
-          <h1 className="page-title fishland-title">Fish Land</h1>
-          <p className="subtitle">Bring your Fish Buddy, explore the island, and meet other lab fish.</p>
+          <span className={styles.kicker}>SOCIAL WORLD</span>
+          <strong className={styles.brandTitle}>Fish Land</strong>
         </div>
-        <div className="fishland-you">
-          <FishAvatar prefs={prefs} compact/>
-          <div><strong>{prefs.name||"Fish Buddy"}</strong><small>Currently at {locations.find(x=>x.id===location)?.label}</small></div>
+        <div className={styles.statusGroup}>
+          <span>{connection}</span>
+          <span>{online.length} online</span>
+          <span>{economy.coins} coins</span>
         </div>
-      </section>
+      </div>
 
-      <section className="fishland-map" aria-label="Interactive Fish Land map">
-        <div className="fishland-water"/>
-        <div className="fishland-island">
-          <MapSpot id="beach" label="Beach" emoji="🏖️" x="7%" y="48%" onGo={go}/>
-          <MapSpot id="park" label="Park" emoji="🌲" x="28%" y="32%" onGo={go}/>
-          <MapSpot id="clinic" label="Fish Clinic" emoji="🩺" x="45%" y="12%" onGo={go}/>
-          <MapSpot id="club" label="Fishmosh" emoji="🪩" x="76%" y="19%" onGo={go}/>
-          <MapSpot id="cafe" label="Central Fish Café" emoji="☕" x="47%" y="42%" onGo={go}/>
-          <MapSpot id="school" label="School / Library" emoji="📚" x="55%" y="70%" onGo={go}/>
-          <MapSpot id="shop" label="Bikini Fish Store" emoji="🛍️" x="17%" y="72%" onGo={go}/>
-          <MapSpot id="redroom" label="Red Room" emoji="🚪" x="31%" y="69%" onGo={go}/>
-          <MapSpot id="risk" label="Enter at your own risk" emoji="⚠️" x="82%" y="68%" onGo={go}/>
-          <div className="fishland-center-fish" style={{left:"50%",top:"52%"}}><FishAvatar prefs={prefs}/></div>
+      <section className={styles.islandScene} aria-label="Fish Land interactive map">
+        <div className={styles.lightRays}/>
+        <div className={styles.bubbleField}><i/><i/><i/><i/><i/><i/></div>
+        <div className={styles.distantFish}><span/><span/><span/></div>
+        <div className={styles.islandShelf}>
+          <div className={styles.mountainRange}/>
+          <div className={styles.kelpPatch}><i/><i/><i/><i/><i/></div>
+          <div className={styles.coralPatch}><i/><i/><i/></div>
+          <MapBuilding room="beach" label="Beach" x="11%" y="58%" onEnter={onEnter} variant="beach"/>
+          <MapBuilding room="park" label="Kelp Park" x="29%" y="31%" onEnter={onEnter} variant="park"/>
+          <MapBuilding room="clinic" label="Doctor" x="49%" y="18%" onEnter={onEnter} variant="clinic"/>
+          <MapBuilding room="club" label="Fishmosh" x="79%" y="22%" onEnter={onEnter} variant="club"/>
+          <MapBuilding room="cafe" label="Fish Café" x="51%" y="47%" onEnter={onEnter} variant="cafe"/>
+          <MapBuilding room="school" label="Library" x="60%" y="72%" onEnter={onEnter} variant="school"/>
+          <MapBuilding room="shop" label="Bikini Shop" x="17%" y="74%" onEnter={onEnter} variant="shop"/>
+          <MapBuilding room="redroom" label="Red Room" x="33%" y="69%" onEnter={onEnter} variant="redroom"/>
+          <MapBuilding room="risk" label="Enter at your own risk" x="83%" y="72%" onEnter={onEnter} variant="risk"/>
+          <div className={styles.mapMe}>
+            <FishAvatar prefs={prefs} bikini={economy.equippedBikini} name={prefs.name}/>
+          </div>
         </div>
-      </section>
-
-      <section className="card fishland-place-card">
-        <span className="eyebrow">CURRENT LOCATION</span>
-        <h2>{locations.find(x=>x.id===panel)?.emoji} {locations.find(x=>x.id===panel)?.label}</h2>
-        <p>{locations.find(x=>x.id===panel)?.desc}</p>
-
-        {panel==="risk" ? <RiskGame prefs={prefs}/> :
-         panel==="clinic" ? <div className="fishland-actions"><Link className="btn secondary" href="/stock">Open Lab Stock</Link><Link className="btn secondary" href="/fish-care/predator-guide">Predator Guide</Link></div> :
-         panel==="school" ? <div className="fishland-actions"><Link className="btn secondary" href="/research">Research Catalogue</Link><Link className="btn secondary" href="/handbook">Lab Handbook</Link></div> :
-         panel==="club" ? <DanceFloor prefs={prefs}/> :
-         panel==="cafe" ? <CafeTable prefs={prefs} peers={here}/> :
-         <div className="fishland-social-note">{here.length>1 ? `${here.length} Fish Buddies are here right now.` : "Your Fish Buddy is exploring this spot."}</div>
-        }
+        <div className={styles.mapHint}>Choose a building to enter a room.</div>
       </section>
     </div>
   );
 }
 
-function MapSpot({id,label,emoji,x,y,onGo}:{id:string;label:string;emoji:string;x:string;y:string;onGo:(id:string)=>void}){
-  return <button className="fishland-spot" style={{left:x,top:y}} onClick={()=>onGo(id)}><span>{emoji}</span><b>{label}</b></button>;
+function MapBuilding({room,label,x,y,onEnter,variant}:{room:string;label:string;x:string;y:string;onEnter:(id:string)=>void;variant:string}){
+  return (
+    <button className={styles.mapBuilding+" "+styles["building_"+variant]} style={{left:x,top:y}} onClick={()=>onEnter(room)}>
+      <span className={styles.buildingArt}><i/><i/><i/></span>
+      <strong>{label}</strong>
+    </button>
+  );
 }
 
-function FishAvatar({prefs,compact=false}:{prefs:BuddyPrefs;compact?:boolean}){
-  return <div className={compact?"land-fish compact":"land-fish"}>
-    <span className="land-tail"/>
-    <span className="land-body"><i/><i/><i/><i/><em/></span>
-    {prefs.hat!=="None"&&<span className="land-hat">{hats[prefs.hat]||""}</span>}
-    {prefs.outfit!=="None"&&<span className="land-outfit">{outfits[prefs.outfit]||""}</span>}
-  </div>;
+function RoomScene(props:{
+  room:string;me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;
+  queueJoinedAt:number|null;setQueueJoinedAt:(n:number|null)=>void;
+  inConsultation:boolean;setInConsultation:(v:boolean)=>void;
+  prefs:BuddyPrefs;economy:Economy;persistEconomy:(e:Economy)=>Promise<void>;
+  signedIn:boolean;online:PresenceFish[];
+}){
+  const common={
+    me:props.me,others:props.others,onMove:props.onMove,prefs:props.prefs,economy:props.economy
+  };
+  if(props.room==="cafe") return <CafeRoom {...common}/>;
+  if(props.room==="clinic") return <ClinicRoom {...common} online={props.online} queueJoinedAt={props.queueJoinedAt} setQueueJoinedAt={props.setQueueJoinedAt} inConsultation={props.inConsultation} setInConsultation={props.setInConsultation}/>;
+  if(props.room==="club") return <ClubRoom {...common}/>;
+  if(props.room==="beach") return <BeachRoom {...common}/>;
+  if(props.room==="shop") return <ShopRoom {...common} persistEconomy={props.persistEconomy} signedIn={props.signedIn}/>;
+  if(props.room==="park") return <ParkRoom {...common}/>;
+  if(props.room==="school") return <SchoolRoom {...common}/>;
+  return <RedRoom {...common}/>;
 }
 
-function CafeTable({prefs,peers}:{prefs:BuddyPrefs;peers:PresenceFish[]}){
-  return <div className="cafe-scene">
-    <div className="cafe-table">☕</div>
-    <div className="cafe-seat"><FishAvatar prefs={prefs} compact/><span>{prefs.name}</span></div>
-    {peers.filter(p=>p.name!==prefs.name).slice(0,4).map((p,i)=><div className="cafe-seat" key={p.id}><FishAvatar prefs={{name:p.name,hat:p.hat||"None",outfit:p.outfit||"None"}} compact/><span>{p.name}</span></div>)}
-    <p>{peers.length>1?"You have company at the café.":"You have a table. When another lab member joins the café, their Fish Buddy can appear here."}</p>
-  </div>;
+function RoomCanvas({variant,me,others,onMove,children}:{variant:string;me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;children:any}){
+  return (
+    <section className={styles.roomShell}>
+      <div className={styles.roomCanvas+" "+styles["room_"+variant]} onPointerDown={onMove}>
+        <div className={styles.roomRays}/>
+        <div className={styles.roomBubbles}><i/><i/><i/><i/><i/></div>
+        {children}
+        <PlayerSprite player={me} self/>
+        {others.map(p=><PlayerSprite player={p} key={p.id}/>)}
+      </div>
+      <div className={styles.moveHint}>Tap or click the floor to swim. Other logged-in players in this room appear live.</div>
+    </section>
+  );
 }
 
-function DanceFloor({prefs}:{prefs:BuddyPrefs}){
-  const [dancing,setDancing]=useState(false);
-  return <div className={dancing?"dance-scene active":"dance-scene"}>
-    <div className="dance-lights">✦ ✧ ✦ ✧</div>
-    <FishAvatar prefs={prefs}/>
-    <button className="btn" onClick={()=>setDancing(v=>!v)}>{dancing?"Stop dancing":"Dance"}</button>
-  </div>;
+function PlayerSprite({player,self=false}:{player:PresenceFish;self?:boolean}){
+  return (
+    <div className={styles.playerSprite+(self?" "+styles.selfSprite:"")} style={{left:player.x+"%",top:player.y+"%"}}>
+      <FishAvatar prefs={{name:player.name,hat:player.hat||"None",outfit:player.outfit||"None"}} bikini={player.bikini||""} name={player.name} compact/>
+      <span>{player.name}{self?" · you":""}</span>
+    </div>
+  );
 }
 
-function RiskGame({prefs}:{prefs:BuddyPrefs}){
+function FishAvatar({prefs,bikini="",name="",compact=false,eating=false}:{prefs:BuddyPrefs;bikini?:string;name?:string;compact?:boolean;eating?:boolean}){
+  const bikiniClass=bikini?styles["bikini_"+bikini]:"";
+  return (
+    <div className={(compact?styles.fish+" "+styles.fishCompact:styles.fish)+" "+bikiniClass+(eating?" "+styles.eating:"")} aria-label={name||prefs.name}>
+      <span className={styles.tail}/>
+      <span className={styles.body}><i/><i/><i/><i/><em/></span>
+      {bikini&&<span className={styles.swimwear}/>}
+      {prefs.hat!=="None"&&<span className={styles.legacyAccessory}>{hats[prefs.hat]||""}</span>}
+      {prefs.outfit!=="None"&&<span className={styles.legacyOutfit}>{outfits[prefs.outfit]||""}</span>}
+      {eating&&<span className={styles.foodParticles}><i/><i/><i/></span>}
+    </div>
+  );
+}
+
+function CafeRoom({me,others,onMove,prefs,economy}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy}){
+  const [eating,setEating]=useState("");
+  function order(id:string){
+    setEating(id);
+    setTimeout(()=>setEating(""),1800);
+  }
+  return (
+    <>
+      <RoomCanvas variant="cafe" me={me} others={others} onMove={onMove}>
+        <div className={styles.cafeWindow}><i/><i/></div>
+        <div className={styles.cafeCounter}><span>PELLET & PLANKTON</span></div>
+        <div className={styles.cafeSofa}/>
+        <div className={styles.cafeTableOne}/>
+        <div className={styles.cafeTableTwo}/>
+        <div className={styles.warmLamp+" "+styles.lampOne}/>
+        <div className={styles.warmLamp+" "+styles.lampTwo}/>
+      </RoomCanvas>
+      <div className={styles.controlPanel}>
+        <div>
+          <span className={styles.kicker}>CAFÉ MENU</span>
+          <h2>Order a zebrafish snack</h2>
+          <p>Menu items reflect foods used in zebrafish husbandry. The animation is just for Fish Land.</p>
+        </div>
+        <div className={styles.menuGrid}>
+          {foodMenu.map(item=>(
+            <button key={item.id} className={styles.menuItem} onClick={()=>order(item.id)}>
+              <strong>{item.name}</strong><small>{item.note}</small>
+            </button>
+          ))}
+        </div>
+        {eating&&<div className={styles.eatingPreview}><FishAvatar prefs={prefs} bikini={economy.equippedBikini} eating/><span>{prefs.name} is eating {foodMenu.find(f=>f.id===eating)?.name}.</span></div>}
+      </div>
+    </>
+  );
+}
+
+function ClinicRoom({me,others,onMove,prefs,economy,online,queueJoinedAt,setQueueJoinedAt,inConsultation,setInConsultation}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy;online:PresenceFish[];queueJoinedAt:number|null;setQueueJoinedAt:(n:number|null)=>void;inConsultation:boolean;setInConsultation:(v:boolean)=>void}){
+  const [prescription,setPrescription]=useState("");
+  const queue=online.filter(p=>p.room==="clinic"&&p.queueJoinedAt).sort((a,b)=>(a.queueJoinedAt||0)-(b.queueJoinedAt||0));
+  const consulting=queue.find(p=>p.inConsultation);
+  const first=queue[0];
+  const isFirst=first?.id===me.id;
+  const position=queue.findIndex(p=>p.id===me.id)+1;
+
+  function leave(){
+    setQueueJoinedAt(null);
+    setInConsultation(false);
+    setPrescription("");
+  }
+  function askDoctor(){
+    const cards=[
+      "SSRI-themed role-play card: 'Serotonin Seaweed Reset'. Fictional game item only — no dosing or treatment advice.",
+      "MK-801 Research Pass: a fictional lab-themed card referencing MK-801 (dizocilpine), not a real prescription or recommendation.",
+      "Quiet Current Pass: fictional rest-and-reset card. No real treatment advice."
+    ];
+    setPrescription(cards[Math.floor(Math.random()*cards.length)]);
+  }
+
+  return (
+    <>
+      <RoomCanvas variant="clinic" me={me} others={others} onMove={onMove}>
+        <div className={styles.clinicReception}><span>RECEPTION</span></div>
+        <div className={styles.waitingSeats}><i/><i/><i/><i/></div>
+        <div className={styles.consultRoom}/>
+        <div className={styles.doctorNpc}><FishAvatar prefs={{name:"Dr. Fin",hat:"Lab cap",outfit:"Lab coat"}} compact/><span>Dr. Fin · NPC</span></div>
+        <div className={styles.npcPatient}><FishAvatar prefs={{name:"Mina",hat:"None",outfit:"None"}} compact/><span>Mina · NPC</span></div>
+      </RoomCanvas>
+      <div className={styles.controlPanel}>
+        <div>
+          <span className={styles.kicker}>SHARED WAITING QUEUE</span>
+          <h2>Doctor's office</h2>
+          <p>Only real connected players appear in this queue. Disconnected players disappear automatically.</p>
+        </div>
+        <div className={styles.queueLayout}>
+          <div className={styles.queueList}>
+            {queue.length===0?<p>No real players are waiting.</p>:queue.map((p,i)=>(
+              <div className={styles.queueRow} key={p.id}>
+                <span>{i+1}</span><strong>{p.name}{p.id===me.id?" · you":""}</strong><small>{p.inConsultation?"With doctor":"Waiting"}</small>
+              </div>
+            ))}
+          </div>
+          <div className={styles.queueActions}>
+            {!queueJoinedAt&&<button className={styles.primaryButton} onClick={()=>setQueueJoinedAt(Date.now())}>Join waiting queue</button>}
+            {queueJoinedAt&&!inConsultation&&<><p>You are #{position} in line.</p><button className={styles.secondaryButton} onClick={leave}>Leave queue</button></>}
+            {queueJoinedAt&&isFirst&&!consulting&&!inConsultation&&<button className={styles.primaryButton} onClick={()=>setInConsultation(true)}>Enter consultation</button>}
+            {inConsultation&&<><button className={styles.primaryButton} onClick={askDoctor}>Ask for a game prescription</button><button className={styles.secondaryButton} onClick={leave}>Finish consultation</button></>}
+          </div>
+        </div>
+        {prescription&&<div className={styles.prescription}><strong>Fictional Fish Land prescription</strong><p>{prescription}</p></div>}
+      </div>
+    </>
+  );
+}
+
+function ClubRoom({me,others,onMove,prefs,economy}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy}){
+  const [playing,setPlaying]=useState(false);
+  const [volume,setVolume]=useState(.35);
+  const [drink,setDrink]=useState("");
+  const audioRef=useRef<any>(null);
+
+  useEffect(()=>{if(audioRef.current?.gain) audioRef.current.gain.gain.value=volume;},[volume]);
+  useEffect(()=>()=>stopMusic(),[]);
+
+  function startMusic(){
+    if(playing) return;
+    const AudioCtx=(window as any).AudioContext||(window as any).webkitAudioContext;
+    if(!AudioCtx) return;
+    const ctx=new AudioCtx();
+    const gain=ctx.createGain();
+    gain.gain.value=volume;
+    gain.connect(ctx.destination);
+    const pattern=[220,277,330,247,196,247,294,370];
+    let step=0;
+    const tick=()=>{
+      const now=ctx.currentTime;
+      const osc=ctx.createOscillator();
+      const g=ctx.createGain();
+      osc.type=step%2===0?"triangle":"sine";
+      osc.frequency.value=pattern[step%pattern.length];
+      g.gain.setValueAtTime(.0001,now);
+      g.gain.exponentialRampToValueAtTime(.16,now+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,now+.19);
+      osc.connect(g);g.connect(gain);osc.start(now);osc.stop(now+.21);
+      if(step%4===0){
+        const bass=ctx.createOscillator();const bg=ctx.createGain();
+        bass.type="sine";bass.frequency.value=pattern[step%pattern.length]/2;
+        bg.gain.setValueAtTime(.0001,now);bg.gain.exponentialRampToValueAtTime(.12,now+.02);bg.gain.exponentialRampToValueAtTime(.0001,now+.35);
+        bass.connect(bg);bg.connect(gain);bass.start(now);bass.stop(now+.37);
+      }
+      step++;
+    };
+    tick();
+    const timer=setInterval(tick,240);
+    audioRef.current={ctx,gain,timer};
+    setPlaying(true);
+  }
+  function stopMusic(){
+    const a=audioRef.current;
+    if(a){clearInterval(a.timer);try{a.ctx.close();}catch{}}
+    audioRef.current=null;
+    setPlaying(false);
+  }
+
+  return (
+    <>
+      <RoomCanvas variant="club" me={me} others={others} onMove={onMove}>
+        <div className={styles.djBooth}><span>FISHMOSH RADIO</span></div>
+        <div className={styles.discoOrb}/>
+        <div className={styles.danceFloor}/>
+        <div className={styles.clubSeating}/>
+        <div className={styles.drinkBar}><span>WATER BAR</span></div>
+      </RoomCanvas>
+      <div className={styles.controlPanel}>
+        <div className={styles.clubControls}>
+          <button className={styles.primaryButton} onClick={playing?stopMusic:startMusic}>{playing?"Pause original Fishmosh loop":"Play original Fishmosh loop"}</button>
+          <label className={styles.volumeControl}>Volume<input type="range" min="0" max="1" step="0.05" value={volume} onChange={e=>setVolume(Number(e.target.value))}/></label>
+          <span className={styles.musicNote}>Music is generated in-browser and starts only after you press play.</span>
+        </div>
+        <div className={styles.drinkMenu}>
+          {["Bubble Water","Cucumber Current","Berry Splash"].map(x=><button key={x} onClick={()=>setDrink(x)} className={styles.secondaryButton}>{x}</button>)}
+        </div>
+        {drink&&<p>{prefs.name} ordered {drink}.</p>}
+      </div>
+    </>
+  );
+}
+
+function BeachRoom({me,others,onMove,prefs,economy}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy}){
+  const [running,setRunning]=useState(false);
+  const [seconds,setSeconds]=useState(15);
+  const [phase,setPhase]=useState(0);
+  const [dir,setDir]=useState(1);
+  const [score,setScore]=useState(0);
+  const [message,setMessage]=useState("Start a 15-second rally.");
+
+  useEffect(()=>{
+    if(!running) return;
+    const t=setInterval(()=>{
+      setPhase(p=>{
+        let next=p+dir*5;
+        if(next>=100){next=100;setDir(-1);}
+        if(next<=0){next=0;setDir(1);}
+        return next;
+      });
+    },90);
+    return()=>clearInterval(t);
+  },[running,dir]);
+
+  useEffect(()=>{
+    if(!running) return;
+    if(seconds<=0){setRunning(false);setMessage("Rally over. Score: "+score);return;}
+    const t=setTimeout(()=>setSeconds(s=>s-1),1000);
+    return()=>clearTimeout(t);
+  },[running,seconds,score]);
+
+  function start(){setScore(0);setSeconds(15);setPhase(0);setDir(1);setMessage("Hit when the ball is over the net zone.");setRunning(true);}
+  function hit(){
+    if(!running) return;
+    const good=phase>=42&&phase<=58;
+    if(good){setScore(s=>s+1);setMessage("Clean hit.");setDir(d=>d*-1);}
+    else setMessage("Missed — wait for the centre zone.");
+  }
+
+  return (
+    <>
+      <RoomCanvas variant="beach" me={me} others={others} onMove={onMove}>
+        <div className={styles.beachHorizon}/>
+        <div className={styles.volleyballCourt}><div className={styles.volleyballNet}/></div>
+        <div className={styles.beachUmbrella}/>
+        <div className={styles.shellCluster}><i/><i/><i/></div>
+      </RoomCanvas>
+      <div className={styles.controlPanel}>
+        <span className={styles.kicker}>BEACH VOLLEYBALL</span>
+        <h2>Quick rally</h2>
+        <div className={styles.volleyTrack}><span className={styles.volleyTarget}/><span className={styles.volleyBall} style={{left:phase+"%"}}/></div>
+        <div className={styles.volleyMeta}><strong>{score} hits</strong><span>{seconds}s</span><span>{message}</span></div>
+        <div className={styles.actionRow}>
+          <button className={styles.primaryButton} onClick={running?hit:start}>{running?"Hit":"Start rally"}</button>
+          {running&&<button className={styles.secondaryButton} onClick={()=>setRunning(false)}>Stop</button>}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function ShopRoom({me,others,onMove,prefs,economy,persistEconomy,signedIn}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy;persistEconomy:(e:Economy)=>Promise<void>;signedIn:boolean}){
+  const [preview,setPreview]=useState(economy.equippedBikini);
+  const [message,setMessage]=useState("");
+
+  async function buy(itemId:string){
+    const item=bikinis.find(b=>b.id===itemId);
+    if(!item) return;
+    if(economy.ownedBikinis.includes(itemId)){
+      await persistEconomy({...economy,equippedBikini:itemId});
+      setPreview(itemId);setMessage("Equipped "+item.name+".");return;
+    }
+    if(economy.coins<item.price){setMessage("You need "+(item.price-economy.coins)+" more coins.");return;}
+    const next={...economy,coins:economy.coins-item.price,ownedBikinis:[...economy.ownedBikinis,itemId],equippedBikini:itemId};
+    await persistEconomy(next);setPreview(itemId);setMessage("Purchased and equipped "+item.name+".");
+  }
+  async function remove(){
+    await persistEconomy({...economy,equippedBikini:""});
+    setPreview("");setMessage("Swimwear removed.");
+  }
+
+  return (
+    <>
+      <RoomCanvas variant="shop" me={me} others={others} onMove={onMove}>
+        <div className={styles.shopCounter}/>
+        <div className={styles.shopRack}><i/><i/><i/><i/></div>
+        <div className={styles.shopMirror}/>
+        <div className={styles.hippieNpc}><FishAvatar prefs={{name:"Marley",hat:"Beanie",outfit:"Scarf"}} compact/><span>Marley · shopkeeper NPC</span></div>
+      </RoomCanvas>
+      <div className={styles.controlPanel}>
+        <div className={styles.shopHeader}>
+          <div><span className={styles.kicker}>BIKINI FISH STORE</span><h2>Swimwear for Fish Land</h2><p>{economy.coins} coins available. Earn 1 coin per 10 metres in the daily descent game.</p></div>
+          <div className={styles.previewTank}><FishAvatar prefs={prefs} bikini={preview}/><small>Preview</small></div>
+        </div>
+        <div className={styles.shopGrid}>
+          {bikinis.map(item=>{
+            const owned=economy.ownedBikinis.includes(item.id);
+            const equipped=economy.equippedBikini===item.id;
+            return <div className={styles.shopItem} key={item.id}>
+              <div className={styles.swatch+" "+styles["swatch_"+item.id]}/>
+              <strong>{item.name}</strong><p>{item.desc}</p><span>{item.price} coins</span>
+              <div className={styles.actionRow}>
+                <button className={styles.secondaryButton} onClick={()=>setPreview(item.id)}>Preview</button>
+                <button className={styles.primaryButton} onClick={()=>buy(item.id)}>{equipped?"Equipped":owned?"Equip":"Buy"}</button>
+              </div>
+            </div>;
+          })}
+        </div>
+        <div className={styles.actionRow}><button className={styles.secondaryButton} onClick={remove}>Remove equipped swimwear</button></div>
+        {!signedIn&&<p className={styles.warningText}>Sign in to sync purchases and coins across devices. Guest progress is stored only on this browser.</p>}
+        {message&&<p className={styles.feedback}>{message}</p>}
+      </div>
+    </>
+  );
+}
+
+function ParkRoom({me,others,onMove}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy}){
+  return <RoomCanvas variant="park" me={me} others={others} onMove={onMove}><div className={styles.kelpGarden}><i/><i/><i/><i/><i/><i/></div><div className={styles.parkBench}/><div className={styles.bubbleFountain}/><div className={styles.parkPath}/></RoomCanvas>;
+}
+
+function SchoolRoom({me,others,onMove}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy}){
+  return (
+    <>
+      <RoomCanvas variant="school" me={me} others={others} onMove={onMove}>
+        <div className={styles.bookshelfOne}/><div className={styles.bookshelfTwo}/><div className={styles.studyDesk}/><div className={styles.studyDeskTwo}/><div className={styles.board}><span>NEUROETHOLOGY NOTES</span></div>
+      </RoomCanvas>
+      <div className={styles.controlPanel}><div className={styles.actionRow}><Link className={styles.primaryLink} href="/research">Research Catalogue</Link><Link className={styles.secondaryLink} href="/handbook">Lab Handbook</Link></div></div>
+    </>
+  );
+}
+
+function RedRoom({me,others,onMove}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy}){
+  return (
+    <>
+      <RoomCanvas variant="redroom" me={me} others={others} onMove={onMove}>
+        <div className={styles.redBookshelf}/><div className={styles.redReadingPod}/><div className={styles.redReadingPodTwo}/><div className={styles.redCoral}/>
+      </RoomCanvas>
+      <div className={styles.controlPanel}><span className={styles.kicker}>READING ROOM</span><h2>Nicotine studies</h2><p>This room is a themed portal for lab-approved reading and research references. It does not provide smoking instructions or medical advice.</p><Link className={styles.secondaryLink} href="/research">Open Research Catalogue</Link></div>
+    </>
+  );
+}
+
+function RiskRoom({prefs,economy,persistEconomy}:{prefs:BuddyPrefs;economy:Economy;persistEconomy:(e:Economy)=>Promise<void>}){
   const day=todayKey();
   const daily=useMemo(()=>{
     const start=seededIndex(day,promptBank.length);
-    return Array.from({length:5},(_,i)=>promptBank[(start+i*3)%promptBank.length]);
+    return Array.from({length:6},(_,i)=>promptBank[(start+i*5)%promptBank.length]);
   },[day]);
   const [started,setStarted]=useState(false);
   const [round,setRound]=useState(0);
   const [answer,setAnswer]=useState("");
   const [seconds,setSeconds]=useState(20);
   const [depth,setDepth]=useState(0);
-  const [result,setResult]=useState("");
+  const [feedback,setFeedback]=useState("");
   const [dead,setDead]=useState(false);
   const [revive,setRevive]=useState(5);
   const [finished,setFinished]=useState(false);
+  const [earned,setEarned]=useState(0);
 
   useEffect(()=>{
     if(!started||dead||finished) return;
-    if(seconds<=0){setDead(true);setRevive(5);setResult("Too slow — an Oscar Cichlid got you.");return;}
+    if(seconds<=0){setDead(true);setRevive(5);setFeedback("Time ran out. The Oscar cichlid found you.");return;}
     const t=setTimeout(()=>setSeconds(s=>s-1),1000);
     return()=>clearTimeout(t);
   },[seconds,started,dead,finished]);
@@ -221,60 +729,72 @@ function RiskGame({prefs}:{prefs:BuddyPrefs}){
   useEffect(()=>{
     if(!dead) return;
     if(revive<=0){
-      setDead(false);setSeconds(20);setAnswer("");setResult("Rejuvenated! Back into the trench.");
-      return;
+      setDead(false);setStarted(false);setRound(0);setAnswer("");setSeconds(20);setDepth(0);setFeedback("Rejuvenated. Ready for another descent.");setFinished(false);return;
     }
-    const t=setTimeout(()=>setRevive(x=>x-1),1000);
+    const t=setTimeout(()=>setRevive(v=>v-1),1000);
     return()=>clearTimeout(t);
   },[dead,revive]);
 
-  function submit(e:FormEvent){
+  async function awardForDepth(newDepth:number){
+    const previous=economy.dailyAwarded[day]||0;
+    if(newDepth<=previous) return 0;
+    const previousCoins=Math.floor(previous/10);
+    const eligibleCoins=Math.floor(newDepth/10);
+    const delta=Math.max(0,eligibleCoins-previousCoins);
+    const next={...economy,coins:economy.coins+delta,dailyAwarded:{...economy.dailyAwarded,[day]:newDepth}};
+    await persistEconomy(next);
+    setEarned(e=>e+delta);
+    return delta;
+  }
+
+  async function submit(e:FormEvent){
     e.preventDefault();
-    if(dead||finished) return;
-    const key=normalized(answer);
-    const freq=daily[round].answers[key];
-    if(freq===undefined){setResult("That answer is not in today’s Fish Land answer database. Try another before time runs out.");return;}
-    const rarity=rarityLabel(freq);
-    const nextDepth=depth+rarity.drop;
+    if(dead||finished||!answer.trim()) return;
+    const prompt=daily[round];
+    const raw=normalize(answer);
+    const canonical=prompt.aliases?.[raw]||raw.replace(/\s+/g,"");
+    const score=prompt.answers[canonical];
+    if(score===undefined){
+      setFeedback("Not in today's curated answer set. Try a synonym or a more typical answer — the timer keeps running.");
+      return;
+    }
+    const result=commonnessResult(score);
+    const nextDepth=depth+result.drop;
+    const delta=await awardForDepth(nextDepth);
     setDepth(nextDepth);
-    setResult(`${rarity.label} answer — you descended ${rarity.drop} m.`);
+    setFeedback(result.label+" on our curated commonness index: descended "+result.drop+" m"+(delta?" and earned "+delta+" coin"+(delta===1?"":"s")+".":"."));
     setAnswer("");
     setSeconds(20);
-    if(round===daily.length-1){setFinished(true);}
+    if(round===daily.length-1) setFinished(true);
     else setRound(r=>r+1);
   }
 
-  function reset(){
-    setStarted(true);setRound(0);setAnswer("");setSeconds(20);setDepth(0);setResult("");setDead(false);setRevive(5);setFinished(false);
+  function begin(){
+    setStarted(true);setRound(0);setAnswer("");setSeconds(20);setDepth(0);setFeedback("");setDead(false);setRevive(5);setFinished(false);setEarned(0);
   }
 
-  if(!started) return <div className="risk-game-intro">
-    <div className="risk-ocean-preview"><FishAvatar prefs={prefs}/><span>↓</span></div>
-    <p>Five daily prompts. You have <strong>20 seconds</strong> each. Less-common answers in the Fish Land database send you deeper. Timeout = Oscar Cichlid.</p>
-    <button className="btn" onClick={reset}>Start today’s descent</button>
-  </div>;
-
-  return <div className="risk-game">
-    <div className="risk-depth-column">
-      <div className="risk-surface">SURFACE</div>
-      <div className="risk-swimmer" style={{top:`${Math.min(82,8+depth*.65)}%`}}><FishAvatar prefs={prefs} compact/><span>{depth} m</span></div>
-      <div className="risk-zone z1">Reef</div><div className="risk-zone z2">Twilight</div><div className="risk-zone z3">Midnight</div><div className="risk-zone z4">Abyss</div><div className="risk-zone z5">Trench</div>
-    </div>
-
-    <div className="risk-console">
-      <div className="risk-meta"><span>Daily game · {day}</span><strong>{finished?"Complete":`Round ${round+1}/${daily.length}`}</strong></div>
-      {!finished&&!dead&&<>
-        <div className={seconds<=5?"risk-timer danger":"risk-timer"}>{seconds}</div>
-        <h3>{daily[round].q}</h3>
-        <form onSubmit={submit} className="risk-answer-form">
-          <input className="input" autoComplete="off" value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Type an answer…" autoFocus/>
-          <button className="btn" type="submit">Dive</button>
-        </form>
-      </>}
-      {dead&&<div className="oscar-attack"><div className="oscar">🐟</div><h3>CHOMP.</h3><p>Oscar Cichlid got {prefs.name}. Rejuvenating in <strong>{revive}</strong>…</p></div>}
-      {finished&&<div className="risk-finish"><h3>Daily descent complete</h3><p>{prefs.name} reached <strong>{depth} m</strong>.</p><button className="btn secondary" onClick={reset}>Play again</button></div>}
-      {result&&<p className="risk-result">{result}</p>}
-      <p className="small">Rarity is scored against Fish Land’s fixed answer-frequency database, not against other players.</p>
-    </div>
-  </div>;
+  return (
+    <section className={styles.riskWorld}>
+      <div className={styles.trench}>
+        <div className={styles.trenchLight}/>
+        <div className={styles.trenchLabels}><span>Sunlit</span><span>Twilight</span><span>Midnight</span><span>Abyss</span><span>Trench</span></div>
+        {!dead&&<div className={styles.riskFish} style={{top:Math.min(88,10+depth*.32)+"%"}}><FishAvatar prefs={prefs} bikini={economy.equippedBikini} compact/><small>{depth} m</small></div>}
+        {dead&&<div className={styles.oscarAttack}><div className={styles.oscarFish}><span/><i/><b/></div><div className={styles.chompRing}/></div>}
+      </div>
+      <div className={styles.riskConsole}>
+        <span className={styles.kicker}>DAILY DESCENT · {day}</span>
+        {!started&&!dead&&<><h1>Enter at Your Own Risk</h1><p>Six daily prompts. You have 20 seconds per answer. More common answers in our curated answer set move you farther down. Scores are editorial commonness weights, not measured population frequencies and not based on current players.</p><button className={styles.primaryButton} onClick={begin}>Start descent</button></>}
+        {started&&!dead&&!finished&&<>
+          <div className={seconds<=5?styles.timer+" "+styles.timerDanger:styles.timer}>{seconds}</div>
+          <small>Prompt {round+1} of {daily.length}</small>
+          <h2>{daily[round].q}</h2>
+          <form className={styles.answerForm} onSubmit={submit}><input value={answer} onChange={e=>setAnswer(e.target.value)} autoFocus placeholder="Type an answer"/><button type="submit">Dive</button></form>
+        </>}
+        {dead&&<div className={styles.deathPanel}><h2>CHOMP.</h2><p>An Oscar cichlid ate {prefs.name}. Rejuvenating in <strong>{revive}</strong> seconds.</p></div>}
+        {finished&&<div className={styles.finishPanel}><h2>Descent complete</h2><p>{prefs.name} reached <strong>{depth} metres</strong> and earned <strong>{earned} coin{earned===1?"":"s"}</strong> this run.</p><button className={styles.primaryButton} onClick={begin}>Play again</button></div>}
+        {feedback&&<div className={styles.feedback}>{feedback}</div>}
+        <div className={styles.rewardRule}>Coin rule: 1 coin per 10 metres of your best awarded distance for the day. Replays only award new distance beyond what was already rewarded.</div>
+      </div>
+    </section>
+  );
 }
