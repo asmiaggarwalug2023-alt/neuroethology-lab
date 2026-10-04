@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AuthStatus } from "./AuthStatus";
 import { InstallApp } from "./InstallApp";
 
@@ -9,6 +12,12 @@ const links = [
 ];
 
 export function Shell({children}:{children:React.ReactNode}) {
+  const pathname = usePathname();
+
+  if (pathname === "/") {
+    return <div className="welcome-shell">{children}</div>;
+  }
+
   return (
     <div className="app-shell">
       <header className="site-header">
