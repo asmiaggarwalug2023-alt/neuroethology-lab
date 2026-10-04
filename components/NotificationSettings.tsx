@@ -40,7 +40,11 @@ export function NotificationSettings(){
       body:JSON.stringify({subscription:json,reminderMinutes:minutes})
     });
     const j=await r.json();
-    if(!r.ok) throw new Error(j.error||"Could not save push subscription.");
+    if(!r.ok){
+      const raw=String(j.error||"");
+      if(raw.includes("push_subscriptions")) throw new Error("Push notifications need one final database setup step before they can be enabled.");
+      throw new Error(raw||"Could not save push subscription.");
+    }
   }
 
   async function enable(){
