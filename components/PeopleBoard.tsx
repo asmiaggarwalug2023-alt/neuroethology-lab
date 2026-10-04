@@ -1,12 +1,12 @@
 "use client";
 import { authFetch } from "../lib/authFetch";
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 
 type Project={id:string;data:{title?:string}};
-type Person={id:string;data:{name?:string;role?:string;email?:string;projectIds?:string[];status?:string;notes?:string}};
+type Person={id:string;data:{name?:string;role?:string;email?:string;projectIds?:string[];status?:string;notes?:string;photo?:string}};
 
-const blank={name:"",role:"",email:"",projectIds:[] as string[],status:"",notes:""};
+const blank={name:"",role:"",email:"",projectIds:[] as string[],status:"",notes:"",photo:""};
 
 export function PeopleBoard(){
   const [people,setPeople]=useState<Person[]>([]);
@@ -32,6 +32,37 @@ export function PeopleBoard(){
     }catch(e:any){setError(e.message);}
   }
   useEffect(()=>{load()},[]);
+
+  async function addPhoto(e:ChangeEvent<HTMLInputElement>){
+    const file=e.target.files?.[0];
+    if(!file) return;
+    setError("");
+    try{
+      const photo=await new Promise<string>((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onerror=()=>reject(new Error("Could not read that image."));
+        reader.onload=()=>{
+          const img=new Image();
+          img.onerror=()=>reject(new Error("Could not process that image."));
+          img.onload=()=>{
+            const max=700;
+            const scale=Math.min(1,max/Math.max(img.width,img.height));
+            const canvas=document.createElement("canvas");
+            canvas.width=Math.round(img.width*scale);
+            canvas.height=Math.round(img.height*scale);
+            const ctx=canvas.getContext("2d");
+            if(!ctx){reject(new Error("Could not process that image."));return;}
+            ctx.drawImage(img,0,0,canvas.width,canvas.height);
+            resolve(canvas.toDataURL("image/jpeg",0.78));
+          };
+          img.src=String(reader.result);
+        };
+        reader.readAsDataURL(file);
+      });
+      setForm(f=>({...f,photo}));
+    }catch(err:any){setError(err.message||"Could not add photo.");}
+    e.target.value="";
+  }
 
   function toggleProject(id:string){
     setForm(f=>({...f,projectIds:f.projectIds.includes(id)?f.projectIds.filter(x=>x!==id):[...f.projectIds,id]}));
@@ -66,6 +97,15 @@ export function PeopleBoard(){
     {open&&<div className="modal-backdrop"><div className="modal-card">
       <h2>{editing?"Edit person":"Add person"}</h2>
       <form className="stack" onSubmit={save}>
+        <div className="form-field">
+          <span>Photo</span>
+          {form.photo&&<div className="person-photo-preview"><img src={form.photo} alt="Person preview"/></div>}
+          <label className="image-upload-button">
+            <input type="file" accept="image/*" onChange={addPhoto}/>
+            <span>{form.photo?"Change picture":"Add picture"}</span>
+          </label>
+          {form.photo&&<button className="btn secondary" type="button" onClick={()=>setForm({...form,photo:""})}>Remove picture</button>}
+        </div>
         <label className="form-field"><span>Name *</span><input className="input" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label>
         <label className="form-field"><span>Role *</span><input className="input" value={form.role} onChange={e=>setForm({...form,role:e.target.value})}/></label>
         <label className="form-field"><span>Email</span><input className="input" type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label>
@@ -85,7 +125,8 @@ export function PeopleBoard(){
     </div></div>}
 
     <div className="grid crud-grid">
-      {people.map(p=><div className="card crud-card" key={p.id}>
+      {people.map(p=><div className="card crud-card person-card" key={p.id}>
+        {p.data.photo?<img className="person-photo" src={p.data.photo} alt={p.data.name||"Lab member"}/>:<div className="person-photo person-photo-placeholder" aria-hidden="true">{(p.data.name||"?").slice(0,1).toUpperCase()}</div>}
         <h3>{p.data.name}</h3>
         {p.data.role&&<p><strong>Role:</strong> {p.data.role}</p>}
         {p.data.email&&<p><strong>Email:</strong> {p.data.email}</p>}
