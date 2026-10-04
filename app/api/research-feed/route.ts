@@ -16,8 +16,8 @@ type EuropeResult={
 
 export async function GET(){
   try{
-    const query='(zebrafish OR "Danio rerio") AND (neuroscience OR brain OR neural OR neuron OR behaviour OR behavior)';
-    const url="https://www.ebi.ac.uk/europepmc/webservices/rest/search?query="+encodeURIComponent(query)+"&format=json&pageSize=6&sort_date=y";
+    const query='(zebrafish OR "Danio rerio") AND ("behavioral neuroscience" OR "behavioural neuroscience" OR behavior OR behaviour OR cognition OR learning OR memory OR decision-making OR decision making OR anxiety OR stress OR social behavior OR social behaviour OR reward OR reinforcement OR fear OR avoidance OR preference)';
+    const url="https://www.ebi.ac.uk/europepmc/webservices/rest/search?query="+encodeURIComponent(query)+"&format=json&pageSize=4&sort_date=y";
     const response=await fetch(url,{next:{revalidate:43200}});
     if(!response.ok) throw new Error("Research source unavailable.");
     const json=await response.json();
