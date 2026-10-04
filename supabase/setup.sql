@@ -3,7 +3,7 @@ create extension if not exists pgcrypto;
 
 create table if not exists public.app_records (
   id uuid primary key default gen_random_uuid(),
-  kind text not null check (kind in ('people','projects','setups','research','stock','commitments','protocols')),
+  kind text not null check (kind in ('people','projects','setups','research','stock','commitments','protocols','calendar_events','news','materials')),
   data jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
