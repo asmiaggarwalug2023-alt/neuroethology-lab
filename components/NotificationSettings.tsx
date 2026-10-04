@@ -109,6 +109,20 @@ export function NotificationSettings(){
     }
   }
 
+  async function sendTest(){
+    setBusy(true);setStatus("");
+    try{
+      const r=await authFetch("/api/push/test",{method:"POST"});
+      const j=await r.json();
+      if(!r.ok) throw new Error(j.error||"Could not send test notification.");
+      setStatus("Test notification sent — check this device.");
+    }catch(e:any){
+      setStatus(e.message||"Could not send test notification.");
+    }finally{
+      setBusy(false);
+    }
+  }
+
   async function changeLead(value:number){
     setLead(value);
     localStorage.setItem("neuro-reminder-minutes",String(value));
@@ -133,7 +147,10 @@ export function NotificationSettings(){
       <div className="settings-row">
         {!enabled
           ? <button className="btn" onClick={enable} disabled={busy}>{busy?"Enabling…":"Enable app notifications"}</button>
-          : <button className="btn secondary" onClick={disable} disabled={busy}>{busy?"Updating…":"Disable app notifications"}</button>}
+          : <>
+              <button className="btn secondary" onClick={disable} disabled={busy}>{busy?"Updating…":"Disable app notifications"}</button>
+              <button className="btn" onClick={sendTest} disabled={busy}>{busy?"Sending…":"Send test notification"}</button>
+            </>}
         <label className="reminder-select">
           <span>Remind me</span>
           <select className="input" value={lead} onChange={e=>changeLead(Number(e.target.value))}>
