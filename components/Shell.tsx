@@ -6,7 +6,7 @@ import { AuthStatus } from "./AuthStatus";
 import { InstallApp } from "./InstallApp";
 
 const links = [
-  ["/home","Home"],["/tasks","Tasks"],["/calendar","Calendar"],["/fish-care","Fish Care"],
+  ["/home","Home"],["/tasks","Tasks"],["/calendar","Calendar"],["/fish-care","Fish Care"],["/fish-land","Fish Land"],
   ["/setups","Lab Setups"],["/projects","Projects"],["/handbook","Lab Handbook"],
   ["/research","Research Catalogue"],["/stock","Lab Stock"],["/people","People & Alumni"]
 ];
