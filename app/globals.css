@@ -1171,3 +1171,43 @@ textarea::placeholder{
   .home-news-bar{grid-template-columns:auto 1fr}
   .home-news-bar>button{grid-column:1/-1}
 }
+
+
+/* Completed rota duties */
+.slot-complete{
+  background:#edf7fc !important;
+}
+.slot-complete>strong{
+  text-decoration:line-through;
+  opacity:.65;
+}
+.task-complete-label{
+  display:block;
+  margin-top:5px;
+  color:var(--sea-dark);
+  font-weight:700;
+  font-size:14px;
+}
+.complete-link{
+  color:var(--sea-dark);
+  font-weight:700;
+}
+.calendar-chip-link{
+  margin-top:3px;
+  color:var(--sea-dark);
+  text-decoration:underline;
+  font-size:12px;
+  font-weight:700;
+  text-align:left !important;
+}
+.calendar-event-edit{
+  border:0;
+  padding:0;
+  background:transparent;
+  color:inherit;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  width:100%;
+  text-align:left !important;
+}
