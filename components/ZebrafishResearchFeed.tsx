@@ -22,13 +22,13 @@ export function ZebrafishResearchFeed(){
   },[]);
 
   return <section className="card roomy research-pulse">
-    <span className="eyebrow">ZEBRAFISH NEUROSCIENCE</span>
+    <span className="eyebrow">ZEBRAFISH BEHAVIOURAL NEUROSCIENCE</span>
     <h2>What&apos;s new with zebrafish research?</h2>
     <p className="research-refresh">Fresh papers are checked automatically every 12 hours.</p>
 
     {loading?<p>Checking the latest research…</p>:papers.length===0?<p>{error||"No recent papers found right now."}</p>:
       <div className="research-paper-list">
-        {papers.slice(0,5).map(p=><a className="research-paper" href={p.url} target="_blank" rel="noreferrer" key={p.id}>
+        {papers.slice(0,2).map(p=><a className="research-paper" href={p.url} target="_blank" rel="noreferrer" key={p.id}>
           <strong>{p.title}</strong>
           {(p.journal||p.date)&&<span>{[p.journal,p.date].filter(Boolean).join(" · ")}</span>}
           {p.authors&&<small>{p.authors}</small>}
