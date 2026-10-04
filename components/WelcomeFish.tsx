@@ -64,7 +64,7 @@ export function WelcomeFish(){
       <p className="welcome-fish-name">{prefs.name || "Fish Buddy"}</p>
 
       <div className="logo-welcome-actions">
-        <Link className="btn logo-enter" href="/tasks">Enter the lab</Link>
+        <Link className="btn logo-enter" href="/home">Enter the lab</Link>
         <Link className="btn secondary logo-login" href="/login">Log in</Link>
       </div>
     </div>
