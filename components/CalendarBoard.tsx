@@ -57,9 +57,9 @@ export function CalendarBoard(){
   const monthLabel=new Intl.DateTimeFormat("en-US",{month:"long",year:"numeric"}).format(cursor).toUpperCase();
 
   function recurringFor(day:Date){
-    const out:{title:string;time:string}[]=[];
-    if(day.getDay()===1) out.push({title:"ASP Thesis Meeting",time:"9:30–10:30 AM"});
-    if(day.getDay()===3) out.push({title:"Lab Meeting",time:"1:30–2:30 PM"});
+    const out:{title:string;time:string;start:string;end:string;details:string}[]=[];
+    if(day.getDay()===1) out.push({title:"ASP Thesis Meeting",time:"9:30–10:30 AM",start:"09:30",end:"10:30",details:"Weekly ASP thesis meeting for the Neuroethology Lab."});
+    if(day.getDay()===3) out.push({title:"Lab Meeting",time:"1:30–2:30 PM",start:"13:30",end:"14:30",details:"Weekly Neuroethology Lab meeting."});
     return out;
   }
   function customFor(day:Date){const s=iso(day);return rows.filter(r=>r.data.date===s);}
@@ -105,8 +105,14 @@ export function CalendarBoard(){
         {cells.map((day,i)=>day?<button className="calendar-day" key={i} onClick={()=>beginAdd(iso(day))}>
           <span className="calendar-day-number">{day.getDate()}</span>
           <div className="calendar-day-events">
-            {recurringFor(day).map(x=><span className="calendar-event-chip recurring" key={x.title}><b>{x.title}</b><small>{x.time}</small></span>)}
-            {customFor(day).map(row=><span className="calendar-event-chip custom" key={row.id} onClick={e=>{e.stopPropagation();beginEdit(row)}}><b>{row.data.title}</b>{row.data.start&&<small>{row.data.start}</small>}</span>)}
+            {recurringFor(day).map(x=><span className="calendar-event-chip recurring" key={x.title}>
+              <b>{x.title}</b><small>{x.time}</small>
+              <a className="calendar-chip-link" href={gcal({title:x.title,date:iso(day),start:x.start,end:x.end,details:x.details,category:"Meeting"})} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()}>Google Calendar</a>
+            </span>)}
+            {customFor(day).map(row=><span className="calendar-event-chip custom" key={row.id}>
+              <button className="calendar-event-edit" onClick={e=>{e.stopPropagation();beginEdit(row)}}><b>{row.data.title}</b>{row.data.start&&<small>{row.data.start}</small>}</button>
+              <a className="calendar-chip-link" href={gcal(row.data)} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()}>Google Calendar</a>
+            </span>)}
           </div>
         </button>:<div className="calendar-day empty" key={i}/>)}
       </div>
