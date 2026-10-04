@@ -74,7 +74,7 @@ export function HomeNewsBar(){
     {open&&<div className="modal-backdrop"><div className="modal-card">
       <h2>Share a lab update</h2>
       <form className="stack" onSubmit={save}>
-        <label className="form-field"><span>Update</span><textarea className="input" rows={4} value={text} onChange={e=>setText(e.target.value)} placeholder="e.g. Behaviour room unavailable after 3 PM today."/></label>
+        <label className="form-field"><span>Update</span><textarea className="input" rows={4} value={text} onChange={e=>setText(e.target.value)} placeholder="e.g. Lab meeting cancelled due to biology seminar"/></label>
         {error&&<div className="error-message">{error}</div>}
         <div className="actions centered-actions"><button className="btn" type="submit">Publish</button><button className="btn secondary" type="button" onClick={()=>{setOpen(false);setError("")}}>Cancel</button></div>
       </form>
