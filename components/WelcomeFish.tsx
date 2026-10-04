@@ -31,6 +31,7 @@ const outfits:Record<string,string>={
 
 export function WelcomeFish(){
   const [prefs,setPrefs]=useState<BuddyPrefs>(defaults);
+  const [signedIn,setSignedIn]=useState(false);
 
   useEffect(()=>{
     const local=localStorage.getItem("neuro-fish-buddy");
@@ -41,9 +42,16 @@ export function WelcomeFish(){
     const supabase=getSupabaseBrowser();
     if(!supabase) return;
     supabase.auth.getSession().then(({data})=>{
+      setSignedIn(!!data.session?.user);
       const remote=data.session?.user?.user_metadata?.fish_buddy;
       if(remote) setPrefs({...defaults,...remote});
     });
+    const {data:sub}=supabase.auth.onAuthStateChange((_event,session)=>{
+      setSignedIn(!!session?.user);
+      const remote=session?.user?.user_metadata?.fish_buddy;
+      if(remote) setPrefs({...defaults,...remote});
+    });
+    return()=>sub.subscription.unsubscribe();
   },[]);
 
   return (
@@ -65,7 +73,7 @@ export function WelcomeFish(){
 
       <div className="logo-welcome-actions">
         <Link className="btn logo-enter" href="/home">Enter the lab</Link>
-        <Link className="btn secondary logo-login" href="/login">Log in</Link>
+        {!signedIn && <Link className="btn secondary logo-login" href="/login">Log in / Sign up</Link>}
       </div>
     </div>
   );
