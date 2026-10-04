@@ -5,7 +5,7 @@ import { InstallApp } from "./InstallApp";
 const links = [
   ["/","Home"],["/tasks","Tasks"],["/calendar","Calendar"],["/fish-care","Fish Care"],
   ["/setups","Lab Setups"],["/projects","Projects"],["/handbook","Lab Handbook"],
-  ["/research","Research Catalogue"],["/stock","Lab Stock"],["/people","People & Alumni"]
+  ["/research","Research Catalogue"],["/additional-material","Additional Material"],["/stock","Lab Stock"],["/people","People & Alumni"]
 ];
 
 export function Shell({children}:{children:React.ReactNode}) {
