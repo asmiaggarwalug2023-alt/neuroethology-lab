@@ -43,4 +43,4 @@ using (true);
 alter table public.app_records drop constraint if exists app_records_kind_check;
 alter table public.app_records
   add constraint app_records_kind_check
-  check (kind in ('people','projects','setups','research','stock','commitments','protocols'));
+  check (kind in ('people','projects','setups','research','stock','commitments','protocols','calendar_events','news','materials'));
