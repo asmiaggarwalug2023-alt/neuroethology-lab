@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ZebrafishResearchFeed } from "../components/ZebrafishResearchFeed";
 
 const quick = [
   {title:"Feeding", text:"See the feeding rota and sign up for a slot.", href:"/tasks", action:"Sign up for feeding", icon:"◌"},
@@ -35,6 +36,7 @@ export default function Home(){
           </Link>
         ))}
       </section>
+      <ZebrafishResearchFeed />
       <section className="dashboard-grid">
         <div className="card roomy">
           <div className="section-heading"><div><span className="eyebrow">THIS WEEK</span><h2>Coming up</h2></div><Link href="/calendar" className="text-link">Full calendar →</Link></div>
