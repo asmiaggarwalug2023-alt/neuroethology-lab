@@ -89,8 +89,8 @@ export function ProtocolBoard(){
   async function addImages(e:ChangeEvent<HTMLInputElement>){
     const files=Array.from(e.target.files||[]);
     if(!files.length) return;
-    if(form.images.length+files.length>5){
-      setError("Please keep each procedure to 5 images or fewer.");
+    if(form.images.length+files.length>3){
+      setError("Please keep each procedure to 3 images or fewer.");
       e.target.value="";
       return;
     }
@@ -187,7 +187,7 @@ export function ProtocolBoard(){
               <input type="file" accept="image/*" multiple onChange={addImages} disabled={imageBusy}/>
               <span>{imageBusy?"Processing images…":"Add images"}</span>
             </label>
-            <span className="small">Up to 5 images. Images are compressed before saving.</span>
+            <span className="small">Up to 3 images. Images are compressed before saving.</span>
             {!!form.images.length&&<div className="protocol-image-editor">{form.images.map((src,i)=><div className="image-preview" key={i}>
               <img src={src} alt={`Preview ${i+1}`}/>
               <button type="button" onClick={()=>setForm({...form,images:form.images.filter((_,index)=>index!==i)})}>Remove</button>
