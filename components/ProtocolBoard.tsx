@@ -134,8 +134,6 @@ export function ProtocolBoard(){
   }
 
   const established=rows.filter(r=>r.data.category==="Established Procedure");
-  const experimental=rows.filter(r=>r.data.category==="Experimental Protocol");
-
   function section(title:ProtocolData["category"],items:Row[]){
     return <section className="protocol-section">
       <div className="section-heading">
@@ -163,18 +161,11 @@ export function ProtocolBoard(){
     {message&&<div className="success-message">{message}</div>}
     {error&&!open&&<div className="error-message">{error}</div>}
     {section("Established Procedure",established)}
-    {section("Experimental Protocol",experimental)}
 
     {open&&<div className="modal-backdrop">
       <div className="modal-card protocol-modal" role="dialog" aria-modal="true">
-        <h2>{editing?"Edit":"Add"} {form.category}</h2>
+        <h2>{editing?"Edit":"Add"} Established Procedure</h2>
         <form className="stack" onSubmit={save}>
-          <label className="form-field"><span>Type *</span>
-            <select className="input" value={form.category} onChange={e=>setForm({...form,category:e.target.value as ProtocolData["category"]})}>
-              <option>Established Procedure</option>
-              <option>Experimental Protocol</option>
-            </select>
-          </label>
           <label className="form-field"><span>Name of procedure *</span><input className="input" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label>
           <label className="form-field"><span>Purpose / Variable *</span><textarea className="input" rows={3} value={form.purpose} onChange={e=>setForm({...form,purpose:e.target.value})}/></label>
           <label className="form-field"><span>Equipment required</span><textarea className="input" rows={3} value={form.equipment} onChange={e=>setForm({...form,equipment:e.target.value})}/></label>
