@@ -1,1 +1,9 @@
-export default function Handbook(){return <><h1 className="page-title">Lab Handbook</h1><p className="subtitle">Routine procedures and approved experimental protocols.</p><div className="grid" style={{marginTop:20}}><div className="card"><h3>Established Procedures</h3><p>Routine ways the lab works day-to-day.</p></div><div className="card"><h3>Experimental Protocols</h3><p>Only add procedures approved for use in your lab.</p></div></div></>}
+import { ProtocolBoard } from "../../components/ProtocolBoard";
+
+export default function Handbook(){
+  return <>
+    <h1 className="page-title">Lab Handbook</h1>
+    <p className="subtitle">Add, update and share established procedures and approved experimental protocols.</p>
+    <ProtocolBoard/>
+  </>;
+}
