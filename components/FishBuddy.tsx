@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowser } from "../lib/supabaseBrowser";
+import { usePathname } from "next/navigation";
 
 type Personality="Friendly"|"Chaotic"|"Sleepy"|"Encouraging"|"Dramatic"|"Nerdy scientist";
 type Hat="None"|"Lab cap"|"Graduation cap"|"Crown"|"Party hat"|"Beanie";
@@ -82,6 +83,7 @@ const outfits:Record<Outfit,string>={
 function pick<T>(arr:T[]){return arr[Math.floor(Math.random()*arr.length)]}
 
 export function FishBuddy(){
+  const pathname=usePathname();
   const [open,setOpen]=useState(false);
   const [customizing,setCustomizing]=useState(false);
   const [prefs,setPrefs]=useState<BuddyPrefs>(defaults);
@@ -157,6 +159,8 @@ export function FishBuddy(){
   function hello(){setMessage(pick(helloByPersonality[prefs.personality]))}
   function fact(){setMessage(pick(facts))}
   function pun(){setMessage(pick(puns))}
+
+  if(pathname==="/") return null;
 
   return (
     <div className="fish-buddy-wrap">
