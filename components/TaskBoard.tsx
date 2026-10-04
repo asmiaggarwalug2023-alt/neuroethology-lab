@@ -14,6 +14,8 @@ type CommitmentRow={
     start:string;
     end:string;
     notes?:string;
+    completedAt?:string;
+    completedBy?:string;
   }
 };
 
@@ -135,6 +137,28 @@ export function TaskBoard(){
     finally{setBusyKey("");}
   }
 
+  async function complete(row:CommitmentRow){
+    if(!user) return;
+    setBusyKey(row.id+"-complete");setError("");setMessage("");
+    try{
+      const next={
+        ...row.data,
+        completedAt:new Date().toISOString(),
+        completedBy:user.name
+      };
+      const r=await authFetch("/api/records",{
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id:row.id,data:next})
+      });
+      const j=await r.json();
+      if(!r.ok) throw new Error(j.error||"Could not mark task complete.");
+      setMessage(`${row.data.task} marked complete.`);
+      await load();
+    }catch(e:any){setError(e.message);}
+    finally{setBusyKey("");}
+  }
+
   async function release(row:CommitmentRow){
     if(!confirm("Release this slot?")) return;
     setBusyKey(row.id);setError("");setMessage("");
@@ -183,10 +207,12 @@ export function TaskBoard(){
                 </td>;
               }
               const mine=!!user && user.email===row.data.email;
-              return <td key={slot.task} className="slot-taken">
+              return <td key={slot.task} className={`slot-taken ${row.data.completedAt?"slot-complete":""}`}>
                 <strong>{row.data.name}</strong>
+                {row.data.completedAt&&<span className="task-complete-label">✓ Completed</span>}
                 <div className="slot-actions">
                   <a className="mini-action" href={googleCalendarUrl(row)} target="_blank" rel="noreferrer">Google Calendar</a>
+                  {!row.data.completedAt&&user&&<button className="mini-action complete-link" disabled={busyKey===row.id+"-complete"} onClick={()=>complete(row)}>{busyKey===row.id+"-complete"?"Saving…":"Mark complete"}</button>}
                   {mine&&<button className="mini-action danger-link" disabled={busyKey===row.id} onClick={()=>release(row)}>{busyKey===row.id?"Removing…":"Release"}</button>}
                 </div>
               </td>;
