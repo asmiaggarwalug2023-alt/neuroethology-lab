@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 
 export const revalidate=43200;
 
+function cleanTitle(value:string){
+  return value
+    .replace(/&lt;\/?i&gt;/gi,"")
+    .replace(/<\/?i>/gi,"")
+    .replace(/&amp;/g,"&")
+    .replace(/&quot;/g,'"')
+    .replace(/&#39;/g,"'")
+    .replace(/&lt;/g,"<")
+    .replace(/&gt;/g,">");
+}
+
 type EuropeResult={
   id?:string;
   pmid?:string;
@@ -31,7 +42,7 @@ export async function GET(){
             : "https://europepmc.org/search?query="+encodeURIComponent(p.title||"zebrafish");
       return {
         id:p.id||p.pmid||p.pmcid||p.doi||p.title,
-        title:p.title||"Untitled zebrafish research",
+        title:cleanTitle(p.title||"Untitled zebrafish research"),
         authors:p.authorString||"",
         journal:p.journalTitle||"",
         date:p.firstPublicationDate||p.pubYear||"",
