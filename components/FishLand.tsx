@@ -38,7 +38,7 @@ const promptBank:Prompt[]=[
   {q:"Name an animal people keep as a pet",answers:{dog:.95,cat:.94,fish:.72,bird:.64,rabbit:.53,hamster:.45,turtle:.34,guineapig:.28,snake:.18,lizard:.15,ferret:.09,axolotl:.04}},
   {q:"Name a colour",answers:{blue:.94,red:.91,green:.86,black:.80,white:.78,pink:.72,purple:.67,yellow:.64,orange:.55,brown:.49,grey:.43,teal:.22,maroon:.15,indigo:.09,turquoise:.08}},
   {q:"Name a country in Asia",answers:{india:.94,china:.91,japan:.86,southkorea:.71,indonesia:.58,thailand:.54,pakistan:.49,nepal:.43,singapore:.40,vietnam:.38,malaysia:.34,bangladesh:.30,srilanka:.27,philippines:.25,bhutan:.14,mongolia:.11,laos:.08,brunei:.04}},
-  {q:"Name something found in a laboratory",answers:{microscope:.92,testtube:.84,pipette:.81,gloves:.76,beaker:.73,centrifuge:.61,petri dish:.58,computer:.48,freezer:.40,incubator:.36,forceps:.29,scalpel:.24,spectrophotometer:.12,microtome:.07}},
+  {q:"Name something found in a laboratory",answers:{microscope:.92,testtube:.84,pipette:.81,gloves:.76,beaker:.73,centrifuge:.61,"petri dish":.58,computer:.48,freezer:.40,incubator:.36,forceps:.29,scalpel:.24,spectrophotometer:.12,microtome:.07}},
   {q:"Name a body of water",answers:{ocean:.92,sea:.87,river:.84,lake:.78,pond:.61,stream:.52,creek:.39,lagoon:.26,bay:.24,gulf:.22,estuary:.16,fjord:.09}},
   {q:"Name a fish",answers:{goldfish:.91,salmon:.80,tuna:.75,shark:.70,clownfish:.63,betta:.54,zebrafish:.49,guppy:.46,carp:.39,trout:.36,tilapia:.31,cichlid:.24,oscar:.14,discus:.09,killifish:.07}},
   {q:"Name something you might see at the beach",answers:{sand:.94,water:.93,waves:.88,shells:.74,people:.69,umbrella:.61,towel:.56,seagull:.45,boat:.39,crab:.31,seaweed:.26,starfish:.19,jellyfish:.12}},
