@@ -1372,3 +1372,51 @@ textarea::placeholder{
     50%{transform:scale(1.35) translateX(5px) rotate(1deg)}
   }
 }
+
+
+/* Fish Land */
+.fishland-shell{display:flex;flex-direction:column;gap:22px}
+.fishland-header{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.fishland-title{margin-bottom:10px}
+.fishland-you{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid var(--line);border-radius:18px;background:white}
+.fishland-you strong,.fishland-you small{display:block}
+.fishland-you small{color:var(--muted);margin-top:2px}
+.fishland-map{position:relative;min-height:610px;border-radius:34px;overflow:hidden;border:2px solid #8bbfe2;background:#56b7e8;box-shadow:var(--shadow)}
+.fishland-water{position:absolute;inset:0;background:radial-gradient(circle at 22% 20%,rgba(255,255,255,.35),transparent 18rem),linear-gradient(180deg,#69c9ef,#2b9ed7)}
+.fishland-island{position:absolute;inset:7% 5%;border-radius:46% 43% 41% 47%;background:linear-gradient(180deg,#f8fcff 0 32%,#d9edf4 32% 48%,#c8dfc4 48% 100%);border:5px solid rgba(255,255,255,.85);box-shadow:0 12px 0 rgba(38,84,161,.18);overflow:hidden}
+.fishland-island:before{content:"";position:absolute;left:16%;right:18%;top:5%;height:36%;background:linear-gradient(145deg,#d8edf7,#9fbdd0);clip-path:polygon(0 100%,18% 38%,28% 74%,43% 0,58% 66%,72% 25%,100% 100%);opacity:.9}
+.fishland-island:after{content:"";position:absolute;left:9%;right:9%;bottom:4%;height:34%;background:radial-gradient(circle at 20% 40%,#9fc08c 0 5%,transparent 6%),radial-gradient(circle at 45% 20%,#87b67d 0 5%,transparent 6%),radial-gradient(circle at 70% 48%,#7eab72 0 5%,transparent 6%);opacity:.8}
+.fishland-spot{position:absolute;transform:translate(-50%,-50%);z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:112px;min-height:72px;padding:8px 10px;border:2px solid white;border-radius:18px;background:rgba(255,255,255,.88);color:var(--ink);box-shadow:0 7px 18px rgba(36,50,116,.16)}
+.fishland-spot span{font-size:27px}.fishland-spot b{font-size:14px;line-height:1.05}
+.fishland-spot:hover{transform:translate(-50%,-53%);border-color:var(--sea);background:white}
+.fishland-center-fish{position:absolute;z-index:5;transform:translate(-50%,-50%)}
+.land-fish{position:relative;width:116px;height:58px;animation:land-swim 3s ease-in-out infinite}
+.land-fish.compact{width:74px;height:40px}
+.land-body{position:absolute;left:27%;top:18%;width:62%;height:62%;border-radius:62% 50% 50% 62%;background:linear-gradient(180deg,#d7eef8,#80bfdc);border:2px solid #2654a1;overflow:hidden}
+.land-tail{position:absolute;left:4%;top:21%;width:30%;height:56%;background:#8dc6df;border:2px solid #2654a1;clip-path:polygon(100% 50%,0 0,0 100%)}
+.land-body i{position:absolute;top:-10%;width:8%;height:120%;background:#2654a1;transform:rotate(9deg)}
+.land-body i:nth-child(1){left:18%}.land-body i:nth-child(2){left:36%}.land-body i:nth-child(3){left:54%}.land-body i:nth-child(4){left:72%}
+.land-body em{position:absolute;right:10%;top:24%;width:8px;height:8px;border-radius:50%;background:#111;box-shadow:0 0 0 2px white}
+.land-hat{position:absolute;right:17%;top:-24%;font-size:25px;z-index:6}.land-outfit{position:absolute;left:47%;bottom:-22%;font-size:26px;z-index:6}
+.land-fish.compact .land-hat,.land-fish.compact .land-outfit{font-size:18px}
+@keyframes land-swim{0%,100%{transform:translateX(-4px)}50%{transform:translateX(4px)}}
+.fishland-place-card{padding:28px;min-height:220px}.fishland-place-card h2{font-size:36px;margin:8px 0}.fishland-place-card>p{max-width:720px}
+.fishland-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.fishland-social-note{padding:18px;background:var(--foam);border:1px solid var(--line);border-radius:14px}
+.cafe-scene,.dance-scene{width:100%;min-height:210px;border-radius:18px;background:linear-gradient(180deg,#f7fbff,#deedf7);display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;padding:22px;position:relative}
+.cafe-table{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;background:#bb855f;font-size:38px;border:7px solid #9b6e4d}
+.cafe-seat{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:14px}.cafe-scene p{width:100%}
+.dance-scene{flex-direction:column;background:linear-gradient(145deg,#28306f,#542c78);color:white;overflow:hidden}.dance-lights{font-size:34px;letter-spacing:16px}.dance-scene.active .land-fish{animation:fish-dance .45s ease-in-out infinite alternate}
+@keyframes fish-dance{from{transform:rotate(-10deg) translateY(0)}to{transform:rotate(10deg) translateY(-12px)}}
+.risk-game-intro{width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px}.risk-ocean-preview{width:min(440px,100%);height:180px;border-radius:18px;background:linear-gradient(#8ed3ee,#114b8b);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-size:42px}
+.risk-game{width:100%;display:grid;grid-template-columns:260px 1fr;gap:22px;align-items:stretch}
+.risk-depth-column{position:relative;min-height:520px;border-radius:20px;overflow:hidden;background:linear-gradient(#78c8ec 0%,#2877b6 28%,#173d79 52%,#101f4c 76%,#080f28 100%);color:white}
+.risk-surface{position:absolute;top:8px;left:0;right:0;text-align:center;font-weight:700;letter-spacing:.15em;font-size:12px}
+.risk-zone{position:absolute;left:12px;font-size:12px;opacity:.75}.z1{top:20%}.z2{top:38%}.z3{top:56%}.z4{top:74%}.z5{top:91%}
+.risk-swimmer{position:absolute;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:5px;transition:top .45s ease;z-index:3}.risk-swimmer span{font-size:12px;background:rgba(0,0,0,.34);padding:3px 7px;border-radius:999px}
+.risk-console{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:420px;padding:22px;border:1px solid var(--line);border-radius:20px;background:#f9fcff}
+.risk-meta{width:100%;display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:14px}.risk-timer{width:80px;height:80px;border-radius:50%;display:grid;place-items:center;margin:18px 0;background:var(--mint);color:var(--sea-dark);font-size:38px;font-weight:700}.risk-timer.danger{background:#ffe2e5;color:#9b2c42;animation:pulse .7s ease-in-out infinite alternate}
+@keyframes pulse{to{transform:scale(1.08)}}.risk-console h3{font-size:31px;margin:4px 0 16px}.risk-answer-form{width:min(560px,100%);display:flex;gap:10px}.risk-answer-form .input{flex:1}.risk-result{margin-top:16px;padding:11px 14px;border-radius:12px;background:white;border:1px solid var(--line);color:var(--sea-dark)}
+.oscar-attack{text-align:center}.oscar{font-size:88px;animation:oscar-chomp .6s ease-in-out infinite alternate}.oscar-attack h3{font-size:48px;color:#8c3042}@keyframes oscar-chomp{to{transform:scale(1.18) rotate(-9deg)}}.risk-finish{text-align:center}
+@media(max-width:850px){.fishland-map{min-height:720px}.fishland-island{inset:4% 3%}.fishland-spot{min-width:88px;min-height:62px}.fishland-spot b{font-size:12px}.risk-game{grid-template-columns:1fr}.risk-depth-column{min-height:390px}.risk-answer-form{flex-direction:column}}
+@media(max-width:560px){.fishland-map{min-height:820px}.fishland-spot{min-width:76px;padding:7px}.fishland-spot span{font-size:22px}.fishland-header{justify-content:center}.fishland-you{width:100%;justify-content:center}.risk-meta{flex-direction:column}.fishland-place-card{padding:20px}}
