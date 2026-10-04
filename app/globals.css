@@ -874,3 +874,149 @@ textarea::placeholder{
   object-fit:cover;
   border-radius:50%;
 }
+
+
+/* Protocol handbook */
+.protocol-section{margin-top:30px}
+.protocol-section .section-heading{margin-bottom:16px}
+.protocol-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.protocol-card{padding:24px}
+.protocol-card h3{font-size:29px;margin:10px 0 16px}
+.protocol-detail{width:100%;margin:0 0 16px}
+.protocol-detail strong{display:block;margin-bottom:5px;font-size:18px;color:var(--sea-dark)}
+.protocol-detail p{white-space:pre-wrap}
+.protocol-images{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:8px 0 18px;
+}
+.protocol-images img{
+  width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  border-radius:12px;
+  border:1px solid var(--line);
+}
+.protocol-modal{width:min(760px,96vw)}
+.image-upload-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 15px;
+  border:1px dashed var(--sea);
+  border-radius:12px;
+  color:var(--sea-dark);
+  background:var(--foam);
+  cursor:pointer;
+  font-weight:700;
+}
+.image-upload-button input{display:none}
+.protocol-image-editor{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-top:8px;
+}
+.image-preview{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  align-items:center;
+}
+.image-preview img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:12px;
+  border:1px solid var(--line);
+}
+.image-preview button{
+  border:0;
+  background:transparent;
+  color:#8c3042;
+  text-decoration:underline;
+}
+
+/* People pictures */
+.person-card{padding:24px}
+.person-photo,
+.person-photo-preview img{
+  width:116px;
+  height:116px;
+  object-fit:cover;
+  border-radius:50%;
+  border:3px solid var(--mint);
+  box-shadow:0 7px 18px rgba(43,115,185,.12);
+}
+.person-photo-placeholder{
+  display:grid;
+  place-items:center;
+  background:var(--mint);
+  color:var(--sea-dark);
+  font-size:42px;
+  font-weight:700;
+}
+.person-photo-preview{margin:4px 0 8px}
+
+/* Latest zebrafish research */
+.research-pulse{
+  margin:22px 0 18px;
+  padding:28px;
+}
+.research-pulse h2{
+  font-size:34px;
+  margin:7px 0 4px;
+}
+.research-refresh{
+  margin-bottom:18px !important;
+}
+.research-paper-list{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.research-paper{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  justify-content:center;
+  min-height:150px;
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#f8fcff;
+  transition:.18s ease;
+}
+.research-paper:hover{
+  transform:translateY(-2px);
+  border-color:var(--sea);
+  box-shadow:var(--shadow);
+}
+.research-paper strong{
+  color:var(--ink);
+  font-size:19px;
+  line-height:1.25;
+}
+.research-paper span,
+.research-paper small{
+  color:var(--muted);
+}
+.research-paper em{
+  margin-top:5px;
+  color:var(--sea-dark);
+  font-style:normal;
+  font-weight:700;
+}
+.research-updated{
+  margin-top:14px;
+}
+
+@media(max-width:760px){
+  .protocol-grid,
+  .research-paper-list{grid-template-columns:1fr}
+  .protocol-image-editor{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
