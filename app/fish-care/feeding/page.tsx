@@ -26,6 +26,15 @@ export default function FeedingGuide(){
             <div>
               <h2>{title}</h2>
               <p>{text}</p>
+              {num === "4" && (
+                <figure className="feeding-reference">
+                  <img
+                    src="/fish-food-reference.jpeg"
+                    alt="Reference amount of powdered fish food on the blue feeding spoon for a tank with 5 to 10 fish"
+                  />
+                  <figcaption>Reference quantity for 5–10 fish.</figcaption>
+                </figure>
+              )}
             </div>
           </section>
         ))}
