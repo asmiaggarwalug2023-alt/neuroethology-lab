@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseForRequest } from "../../../lib/supabaseServer";
 
-const allowed=new Set(["people","projects","setups","research","stock","commitments","protocols"]);
+const allowed=new Set(["people","projects","setups","research","stock","commitments","protocols","calendar_events","news","materials"]);
 
 function unavailable(){
   return NextResponse.json({error:"Shared database is not connected yet."},{status:503});
