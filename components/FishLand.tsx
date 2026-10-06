@@ -225,7 +225,7 @@ export function FishLand(){
   }
 
   function enterRoom(id:string){
-    setRoom(id);
+    setRoom(id==="club"?"club-exterior":id);
     setPos({x:50,y:78});
     if(id!=="clinic"){
       setQueueJoinedAt(null);
@@ -257,14 +257,20 @@ export function FishLand(){
     <div className={styles.world}>
       <div className={styles.compactBar}>
         <button className={styles.backButton} onClick={()=>enterRoom("island")}>Back to Fish Land</button>
-        <div className={styles.roomTitle}>{rooms.find(r=>r.id===room)?.label}</div>
+        <div className={styles.roomTitle}>{room==="club-exterior"?"Fishmosh":rooms.find(r=>r.id===room)?.label}</div>
         <div className={styles.statusGroup}>
           <span>{connection}</span>
           <span>{economy.coins} coins</span>
         </div>
       </div>
 
-      {room==="risk" ? (
+      {room==="club-exterior" ? (
+        <ClubExterior
+          prefs={prefs}
+          economy={economy}
+          onEnter={()=>{setRoom("club");setPos({x:50,y:78});}}
+        />
+      ) : room==="risk" ? (
         <RiskRoom prefs={prefs} economy={economy} persistEconomy={persistEconomy}/>
       ) : (
         <RoomScene
@@ -350,7 +356,7 @@ function RoomScene(props:{
   };
   if(props.room==="cafe") return <CafeRoom {...common}/>;
   if(props.room==="clinic") return <ClinicRoom {...common} online={props.online} queueJoinedAt={props.queueJoinedAt} setQueueJoinedAt={props.setQueueJoinedAt} inConsultation={props.inConsultation} setInConsultation={props.setInConsultation}/>;
-  if(props.room==="club") return <ClubRoom {...common}/>;
+  if(props.room==="club") return <ClubRoom {...common} persistEconomy={props.persistEconomy}/>;
   if(props.room==="beach") return <BeachRoom {...common}/>;
   if(props.room==="shop") return <ShopRoom {...common} persistEconomy={props.persistEconomy} signedIn={props.signedIn}/>;
   if(props.room==="park") return <ParkRoom {...common}/>;
@@ -490,74 +496,157 @@ function ClinicRoom({me,others,onMove,prefs,economy,online,queueJoinedAt,setQueu
   );
 }
 
-function ClubRoom({me,others,onMove,prefs,economy}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy}){
-  const [playing,setPlaying]=useState(false);
-  const [volume,setVolume]=useState(.35);
-  const [drink,setDrink]=useState("");
-  const audioRef=useRef<any>(null);
 
-  useEffect(()=>{if(audioRef.current?.gain) audioRef.current.gain.gain.value=volume;},[volume]);
-  useEffect(()=>()=>stopMusic(),[]);
+function ClubExterior({prefs,economy,onEnter}:{prefs:BuddyPrefs;economy:Economy;onEnter:()=>void}){
+  const [checking,setChecking]=useState(false);
+  const [answer,setAnswer]=useState("");
+  const [message,setMessage]=useState("");
 
-  function startMusic(){
-    if(playing) return;
-    const AudioCtx=(window as any).AudioContext||(window as any).webkitAudioContext;
-    if(!AudioCtx) return;
-    const ctx=new AudioCtx();
-    const gain=ctx.createGain();
-    gain.gain.value=volume;
-    gain.connect(ctx.destination);
-    const pattern=[220,277,330,247,196,247,294,370];
-    let step=0;
-    const tick=()=>{
-      const now=ctx.currentTime;
-      const osc=ctx.createOscillator();
-      const g=ctx.createGain();
-      osc.type=step%2===0?"triangle":"sine";
-      osc.frequency.value=pattern[step%pattern.length];
-      g.gain.setValueAtTime(.0001,now);
-      g.gain.exponentialRampToValueAtTime(.16,now+.02);
-      g.gain.exponentialRampToValueAtTime(.0001,now+.19);
-      osc.connect(g);g.connect(gain);osc.start(now);osc.stop(now+.21);
-      if(step%4===0){
-        const bass=ctx.createOscillator();const bg=ctx.createGain();
-        bass.type="sine";bass.frequency.value=pattern[step%pattern.length]/2;
-        bg.gain.setValueAtTime(.0001,now);bg.gain.exponentialRampToValueAtTime(.12,now+.02);bg.gain.exponentialRampToValueAtTime(.0001,now+.35);
-        bass.connect(bg);bg.connect(gain);bass.start(now);bass.stop(now+.37);
-      }
-      step++;
-    };
-    tick();
-    const timer=setInterval(tick,240);
-    audioRef.current={ctx,gain,timer};
-    setPlaying(true);
+  function submitId(e:FormEvent){
+    e.preventDefault();
+    const reply=answer.trim().toLowerCase();
+    if(reply==="yes, sir, i am"||reply==="yes sir i am"||reply==="yes"||reply==="y"){
+      setMessage("ID check passed. Welcome to Fishmosh.");
+      setTimeout(onEnter,450);
+    }else{
+      setMessage("No entry tonight. Fishmosh is 18+.");
+    }
   }
-  function stopMusic(){
-    const a=audioRef.current;
-    if(a){clearInterval(a.timer);try{a.ctx.close();}catch{}}
-    audioRef.current=null;
-    setPlaying(false);
+
+  return (
+    <section className={styles.clubExterior}>
+      <div className={styles.clubSky}><i/><i/><i/></div>
+      <div className={styles.clubStreet}>
+        <div className={styles.streetLamp+" "+styles.streetLampLeft}/>
+        <div className={styles.streetLamp+" "+styles.streetLampRight}/>
+        <div className={styles.clubFacade}>
+          <div className={styles.clubSign}>FISHMOSH</div>
+          <div className={styles.clubUpperWindows}><i/><i/><i/></div>
+          <div className={styles.clubDoor}>
+            <span className={styles.doorHandle}/>
+          </div>
+          <div className={styles.velvetRope}><i/><i/><b/></div>
+          <div className={styles.bodyguardFish}>
+            <FishAvatar prefs={{name:"Bouncer",hat:"None",outfit:"Glasses"}} compact/>
+            <strong>Bouncer</strong>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.clubEntryPanel}>
+        <div>
+          <span className={styles.kicker}>FISHMOSH · 18+ ENTRY</span>
+          <h2>Tonight at Fishmosh</h2>
+          <p>Lavender light, deep-blue water, red neon and a packed dance floor.</p>
+        </div>
+        {!checking ? (
+          <button className={styles.primaryButton} onClick={()=>setChecking(true)}>Approach the entrance</button>
+        ) : (
+          <form className={styles.idCheck} onSubmit={submitId}>
+            <div className={styles.bouncerSpeech}>“ID check. Are you 18+?”</div>
+            <label>
+              <span>Reply to the bouncer</span>
+              <input value={answer} onChange={e=>setAnswer(e.target.value)} placeholder='Type “Yes, sir, I am”' autoFocus/>
+            </label>
+            <div className={styles.actionRow}>
+              <button className={styles.primaryButton} type="submit">Show ID</button>
+              <button className={styles.secondaryButton} type="button" onClick={()=>{setChecking(false);setAnswer("");setMessage("");}}>Back away</button>
+            </div>
+          </form>
+        )}
+        {message&&<div className={styles.feedback}>{message}</div>}
+        <div className={styles.entryWallet}>{economy.coins} coins in your wallet · {prefs.name}</div>
+      </div>
+    </section>
+  );
+}
+
+function ClubRoom({me,others,onMove,prefs,economy,persistEconomy}:{me:PresenceFish;others:PresenceFish[];onMove:(e:PointerEvent<HTMLDivElement>)=>void;prefs:BuddyPrefs;economy:Economy;persistEconomy:(e:Economy)=>Promise<void>}){
+  const [drink,setDrink]=useState("");
+  const [barMessage,setBarMessage]=useState("Swim up to the counter when you want a drink.");
+  const [danceMessage,setDanceMessage]=useState("Choose a move on the dance floor.");
+  const [dancing,setDancing]=useState("");
+  const [danceReady,setDanceReady]=useState(true);
+
+  const drinks=[
+    {name:"Bubble Berry Fizz",price:3},
+    {name:"Kelp Cooler",price:4},
+    {name:"Coral Citrus Splash",price:5},
+    {name:"Moonwater Mocktail",price:6}
+  ];
+  const moves=["Fin Spin","Bubble Bounce","Current Slide","Reef Shuffle"];
+
+  async function orderDrink(name:string,price:number){
+    if(economy.coins<price){
+      setBarMessage("The bartender flicks a fin: “You need "+(price-economy.coins)+" more coin"+(price-economy.coins===1?"":"s")+".”");
+      return;
+    }
+    await persistEconomy({...economy,coins:economy.coins-price});
+    setDrink(name);
+    setBarMessage("“What's your poison?” — "+prefs.name+" orders a "+name+".");
+  }
+
+  async function dance(move:string){
+    if(!danceReady){
+      setDanceMessage("Catch your breath — another move will be ready in a moment.");
+      return;
+    }
+    setDanceReady(false);
+    setDancing(move);
+    await persistEconomy({...economy,coins:economy.coins+1});
+    setDanceMessage(move+"! +1 coin.");
+    setTimeout(()=>{setDanceReady(true);setDancing("");setDanceMessage("Ready for another move.");},4000);
   }
 
   return (
     <>
       <RoomCanvas variant="club" me={me} others={others} onMove={onMove}>
-        <div className={styles.djBooth}><span>FISHMOSH RADIO</span></div>
+        <div className={styles.clubCeilingGrid}/>
+        <div className={styles.clubBeam+" "+styles.beamRed}/>
+        <div className={styles.clubBeam+" "+styles.beamLavender}/>
+        <div className={styles.clubBeam+" "+styles.beamGreen}/>
+        <div className={styles.clubBeam+" "+styles.beamBlue}/>
         <div className={styles.discoOrb}/>
-        <div className={styles.danceFloor}/>
-        <div className={styles.clubSeating}/>
-        <div className={styles.drinkBar}><span>WATER BAR</span></div>
+        <div className={styles.djBooth}><span>FISHMOSH DJ</span></div>
+        <div className={styles.danceFloor+(dancing?" "+styles.danceFloorActive:"")}/>
+        <div className={styles.clubLounge}><i/><i/><i/></div>
+        <div className={styles.drinkBar}><span>BAR</span></div>
+        <div className={styles.barStools}><i/><i/><i/><i/></div>
+        <div className={styles.bartenderNpc}>
+          <FishAvatar prefs={{name:"Mosh",hat:"None",outfit:"Bow tie"}} compact/>
+          <span>Mosh · bartender NPC</span>
+        </div>
+        <div className={styles.waiterNpc}>
+          <FishAvatar prefs={{name:"Finn",hat:"Beanie",outfit:"None"}} compact/>
+          <span>Finn · waiter NPC</span>
+        </div>
       </RoomCanvas>
-      <div className={styles.controlPanel}>
-        <div className={styles.clubControls}>
-          <button className={styles.primaryButton} onClick={playing?stopMusic:startMusic}>{playing?"Pause original Fishmosh loop":"Play original Fishmosh loop"}</button>
-          <label className={styles.volumeControl}>Volume<input type="range" min="0" max="1" step="0.05" value={volume} onChange={e=>setVolume(Number(e.target.value))}/></label>
-          <span className={styles.musicNote}>Music is generated in-browser and starts only after you press play.</span>
-        </div>
-        <div className={styles.drinkMenu}>
-          {["Bubble Water","Cucumber Current","Berry Splash"].map(x=><button key={x} onClick={()=>setDrink(x)} className={styles.secondaryButton}>{x}</button>)}
-        </div>
-        {drink&&<p>{prefs.name} ordered {drink}.</p>}
+
+      <div className={styles.clubDashboard}>
+        <section className={styles.clubCard}>
+          <span className={styles.kicker}>BAR COUNTER</span>
+          <h2>“What's your poison?”</h2>
+          <p>{barMessage}</p>
+          <div className={styles.drinkMenuGrid}>
+            {drinks.map(item=>(
+              <button key={item.name} className={styles.drinkTile} onClick={()=>orderDrink(item.name,item.price)}>
+                <strong>{item.name}</strong>
+                <span>{item.price} coins</span>
+              </button>
+            ))}
+          </div>
+          {drink&&<div className={styles.servedDrink}><span/><strong>{drink}</strong><small>served to {prefs.name}</small></div>}
+        </section>
+
+        <section className={styles.clubCard}>
+          <span className={styles.kicker}>DANCE FLOOR · EARN COINS</span>
+          <h2>Choose your move</h2>
+          <p>{danceMessage}</p>
+          <div className={styles.danceMoves}>
+            {moves.map(move=><button key={move} className={styles.danceMove} disabled={!danceReady} onClick={()=>dance(move)}>{move}</button>)}
+          </div>
+          <div className={styles.coinRule}>Each completed dance move earns 1 coin. Four-second cooldown between rewards.</div>
+        </section>
       </div>
     </>
   );
